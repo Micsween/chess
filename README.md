@@ -1,5 +1,6 @@
 # ♕ BYU CS 240 Chess
 This is Michelle's version of Chess! I'm thinking of changing the colors of the pieces. Also, I'm a little nervous as I haven't been able to get IntelliJ to work yet. I'm hoping it works soon!
+
 This project demonstrates mastery of proper software design, client/server architecture, networking using HTTP and WebSocket, database persistence, unit testing, serialization, and security.
 
 ## 10k Architecture Overview
