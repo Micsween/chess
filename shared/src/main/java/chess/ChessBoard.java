@@ -22,17 +22,23 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         return this.board[position.getRow()][position.getColumn()];
     }
-    public void AddPawns(ChessGame.TeamColor teamColor){
-        ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
-        for(int i = 1; i < 9; i++) {
-            ChessPosition position = new ChessPosition(1, i);
-            addPiece(position, pawn);
-            System.out.println(this.board[1][i].pieceType + "1" + i );
-        }
 
-        //creates a new chess piece, a pawn, of a specified color
+    public void AddPawns(ChessGame.TeamColor teamColor) {
+        int row = 0;
+        ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            row = 1;
+        }else if (teamColor == ChessGame.TeamColor.BLACK) {
+            row = 7;
+        }
+        for (int i = 1; i < 9; i++) {
+            ChessPosition position = new ChessPosition(row, i);
+            addPiece(position, pawn);
+            //FOR DEBUGGING
+            //System.out.println(this.board[row][i].teamColor + "1" + i);
+        }
     }
-    /**
+    /*
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
@@ -100,6 +106,7 @@ public class ChessBoard {
     */
     public void resetBoard() {
         AddPawns(ChessGame.TeamColor.WHITE);
+        AddPawns(ChessGame.TeamColor.BLACK);
         //resets both sides of the board
         //resetWhite(ChessGame.TeamColor.WHITE);
         //resetBlack(ChessGame.TeamColor.BLACK);
