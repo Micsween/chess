@@ -9,11 +9,13 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessPiece {
-    ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
-    PieceType pieceType = PieceType.PAWN;
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-    }
+    ChessGame.TeamColor teamColor;
+    PieceType pieceType;
 
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceType = type;
+        this.teamColor = pieceColor;
+    }
     /**
      * The various different chess piece options
      */
@@ -26,16 +28,10 @@ public class ChessPiece {
         PAWN
     }
 
-    /**
-     * @return Which team this chess piece belongs to
-     */
     public ChessGame.TeamColor getTeamColor() {
        return teamColor;
     }
 
-    /**
-     * @return which type of chess piece this piece is
-     */
     public PieceType getPieceType() {
         return pieceType;
     }
