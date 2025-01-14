@@ -8,7 +8,7 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    ChessPiece[][] board;
+    ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
 
     }
@@ -18,13 +18,6 @@ public class ChessBoard {
         board[position.getRow()][position.getColumn()] = piece;
     }
 
-    /**
-     * Gets a chess piece on the chessboard
-     *
-     * @param position The position to get the piece from
-     * @return Either the piece at the position, or null if no piece is at that
-     * position
-     */
     public ChessPiece getPiece(ChessPosition position) {
        return board[position.getRow()][position.getColumn()];
     }
@@ -33,7 +26,59 @@ public class ChessBoard {
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
+    //resets White's side of the board
+    public void resetWhite(ChessGame.TeamColor teamColor){
+        for(ChessPiece.PieceType pieceType : ChessPiece.PieceType.values()) {
+            ChessPiece piece = new ChessPiece(teamColor, pieceType);
+            switch (pieceType) {
+                case PAWN:
+                    for (int i = 0; i < 8; i++) {
+                        addPiece(new ChessPosition(1, i), piece);
+                    }
+                case KNIGHT:
+                    addPiece(new ChessPosition(0,1), piece);
+                    addPiece(new ChessPosition(0, 6), piece);
+                case ROOK:
+                    addPiece(new ChessPosition(0,0), piece);
+                    addPiece(new ChessPosition(0,7), piece);
+                case BISHOP:
+                    addPiece(new ChessPosition(0, 2), piece);
+                    addPiece(new ChessPosition(0, 5), piece);
+                case KING:
+                    addPiece(new ChessPosition(0, 3), piece);
+                case QUEEN:
+                    addPiece(new ChessPosition(0, 4), piece);
+            }
+        }
+    }
+    //resets black's side of the board
+    public void resetBlack(ChessGame.TeamColor teamColor){
+        for(ChessPiece.PieceType pieceType : ChessPiece.PieceType.values()) {
+            ChessPiece piece = new ChessPiece(teamColor, pieceType);
+            switch (pieceType) {
+                case PAWN:
+                    for (int i = 0; i < 8; i++) {
+                        addPiece(new ChessPosition(6, i), piece);
+                    }
+                case ROOK:
+                    addPiece(new ChessPosition(7,0), piece);
+                    addPiece(new ChessPosition(7,7), piece);
+                case KNIGHT:
+                    addPiece(new ChessPosition(7,1), piece);
+                    addPiece(new ChessPosition(7, 6), piece);
+                case BISHOP:
+                    addPiece(new ChessPosition(7, 2), piece);
+                    addPiece(new ChessPosition(7, 5), piece);
+                case KING:
+                    addPiece(new ChessPosition(7, 3), piece);
+                case QUEEN:
+                    addPiece(new ChessPosition(7, 4), piece);
+            }
+        }
+    }
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        //resets both sides of the board
+        resetWhite(ChessGame.TeamColor.WHITE);
+        resetBlack(ChessGame.TeamColor.BLACK);
     }
 }
