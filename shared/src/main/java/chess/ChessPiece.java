@@ -11,7 +11,6 @@ import java.util.Collection;
 public class ChessPiece {
     ChessGame.TeamColor teamColor;
     PieceType pieceType;
-
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceType = type;
         this.teamColor = pieceColor;

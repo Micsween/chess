@@ -16,13 +16,22 @@ public class ChessBoard {
 
 
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        board[position.getRow()][position.getColumn()] = piece;
+        this.board[position.getRow()][position.getColumn()] = piece;
     }
 
     public ChessPiece getPiece(ChessPosition position) {
-       return board[position.getRow()][position.getColumn()];
+        return this.board[position.getRow()][position.getColumn()];
     }
+    public void AddPawns(ChessGame.TeamColor teamColor){
+        ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
+        for(int i = 1; i < 9; i++) {
+            ChessPosition position = new ChessPosition(1, i);
+            addPiece(position, pawn);
+            System.out.println(this.board[1][i].pieceType + "1" + i );
+        }
 
+        //creates a new chess piece, a pawn, of a specified color
+    }
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -90,6 +99,7 @@ public class ChessBoard {
     }
     */
     public void resetBoard() {
+        AddPawns(ChessGame.TeamColor.WHITE);
         //resets both sides of the board
         //resetWhite(ChessGame.TeamColor.WHITE);
         //resetBlack(ChessGame.TeamColor.BLACK);
