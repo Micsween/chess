@@ -1,11 +1,6 @@
 package chess;
 
-/**
- * Represents a single square position on a chess board
- * <p>
- * Note: You can add to this class, but you may not alter
- * signature of the existing methods.
- */
+
 public class ChessPosition {
     private int row;
     private int col;
@@ -13,19 +8,12 @@ public class ChessPosition {
        this.row = row;
        this.col = col;
     }
-
-    /**
-     * @return which row this position is in
-     * 1 codes for the bottom row
-     */
+    //gets the row of a chess position
     public int getRow() {
         return row;
     }
 
-    /**
-     * @return which column this position is in
-     * 1 codes for the left row
-     */
+    //gets the column of a chess position
     public int getColumn() {
         return col;
     }

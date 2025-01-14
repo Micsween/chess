@@ -8,9 +8,10 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessBoard {
-    ChessPiece[][] board = new ChessPiece[8][8];
-    public ChessBoard() {
+   ChessPiece[][] board;
 
+    public ChessBoard() {
+        board = new ChessPiece[9][9];
     }
 
 
@@ -27,35 +28,46 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     //resets White's side of the board
-    public void resetWhite(ChessGame.TeamColor teamColor){
+    /*public void resetWhite(){
+        ChessGame.TeamColor teamColor = new ChessGame.TeamColor.WHITE;
         for(ChessPiece.PieceType pieceType : ChessPiece.PieceType.values()) {
             ChessPiece piece = new ChessPiece(teamColor, pieceType);
             switch (pieceType) {
+                //ask the TAs
                 case PAWN:
-                    for (int i = 0; i < 8; i++) {
+                    for (int i = 1; i < 9; i++) {
                         addPiece(new ChessPosition(1, i), piece);
+                        //debugging
+                        //System.out.println(board[2][i]);
+                        //System.out.println(board[0][i].getPieceType());
+                        //System.out.println();
+
+
                     }
+                    break;
                 case KNIGHT:
-                    addPiece(new ChessPosition(0,1), piece);
-                    addPiece(new ChessPosition(0, 6), piece);
+                    //addPiece(new ChessPosition(1,1), piece);
+                    //addPiece(new ChessPosition(1, 6), piece);
                 case ROOK:
-                    addPiece(new ChessPosition(0,0), piece);
-                    addPiece(new ChessPosition(0,7), piece);
+                    //addPiece(new ChessPosition(1,1), piece);
+                    //addPiece(new ChessPosition(1,8), piece);
                 case BISHOP:
-                    addPiece(new ChessPosition(0, 2), piece);
-                    addPiece(new ChessPosition(0, 5), piece);
+                    //addPiece(new ChessPosition(1, 2), piece);
+                    //addPiece(new ChessPosition(1, 5), piece);
                 case KING:
-                    addPiece(new ChessPosition(0, 3), piece);
+                    //addPiece(new ChessPosition(0, 3), piece);
                 case QUEEN:
                     addPiece(new ChessPosition(0, 4), piece);
             }
         }
     }
+    */
     //resets black's side of the board
-    public void resetBlack(ChessGame.TeamColor teamColor){
+    /*public void resetBlack(ChessGame.TeamColor teamColor){
         for(ChessPiece.PieceType pieceType : ChessPiece.PieceType.values()) {
             ChessPiece piece = new ChessPiece(teamColor, pieceType);
-            switch (pieceType) {
+            //just updated so that piece changes
+            switch (piece.pieceType) {
                 case PAWN:
                     for (int i = 0; i < 8; i++) {
                         addPiece(new ChessPosition(6, i), piece);
@@ -76,9 +88,10 @@ public class ChessBoard {
             }
         }
     }
+    */
     public void resetBoard() {
         //resets both sides of the board
-        resetWhite(ChessGame.TeamColor.WHITE);
-        resetBlack(ChessGame.TeamColor.BLACK);
+        //resetWhite(ChessGame.TeamColor.WHITE);
+        //resetBlack(ChessGame.TeamColor.BLACK);
     }
 }
