@@ -25,18 +25,26 @@ public class ChessBoard {
 
     public void AddPawns(ChessGame.TeamColor teamColor) {
         int row = 0;
-        ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
         if (teamColor == ChessGame.TeamColor.WHITE) {
-            row = 1;
+            row = 2;
         }else if (teamColor == ChessGame.TeamColor.BLACK) {
             row = 7;
         }
         for (int i = 1; i < 9; i++) {
+            ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
             ChessPosition position = new ChessPosition(row, i);
             addPiece(position, pawn);
             //FOR DEBUGGING
             //System.out.println(this.board[row][i].teamColor + "1" + i);
         }
+    }
+    public void addRooks(){
+        //adds white rooks
+        addPiece(new ChessPosition(1,1), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
+        addPiece(new ChessPosition(1,8),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
+        //adds black rooks
+        addPiece(new ChessPosition(8,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
+        addPiece(new ChessPosition(8,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
     }
     /*
      * Sets the board to the default starting board
@@ -49,16 +57,7 @@ public class ChessBoard {
             ChessPiece piece = new ChessPiece(teamColor, pieceType);
             switch (pieceType) {
                 //ask the TAs
-                case PAWN:
-                    for (int i = 1; i < 9; i++) {
-                        addPiece(new ChessPosition(1, i), piece);
-                        //debugging
-                        //System.out.println(board[2][i]);
-                        //System.out.println(board[0][i].getPieceType());
-                        //System.out.println();
 
-
-                    }
                     break;
                 case KNIGHT:
                     //addPiece(new ChessPosition(1,1), piece);
