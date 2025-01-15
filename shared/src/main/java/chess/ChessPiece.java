@@ -11,6 +11,15 @@ import java.util.Collection;
 public class ChessPiece {
     ChessGame.TeamColor teamColor;
     PieceType pieceType;
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "teamColor=" + teamColor +
+                ", pieceType=" + pieceType +
+                '}';
+    }
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceType = type;
         this.teamColor = pieceColor;
@@ -18,13 +27,15 @@ public class ChessPiece {
     /**
      * The various different chess piece options
      */
+
     public enum PieceType {
         KING,
         QUEEN,
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
+
     }
 
     public ChessGame.TeamColor getTeamColor() {

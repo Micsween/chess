@@ -9,7 +9,10 @@ package chess;
  */
 public class ChessBoard {
    ChessPiece[][] board;
-
+    // write new to string method
+    // write new hash method
+    // write new equals method
+    //intellij writes it for you and on the github
     public ChessBoard() {
         board = new ChessPiece[9][9];
     }
@@ -45,6 +48,23 @@ public class ChessBoard {
             //System.out.println(this.board[row][i].teamColor + "1" + i);
         }
     }
+    /*
+    add all the special pieces
+    trying to rewrite addpiece functions to simplify
+    public void AddMinorPieces(){
+        ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
+        int row = 1;
+        //rook
+        for(int i = 1; i < 9; i++) {
+            ChessPiece
+            addPiece(new ChessPosition(row,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
+        }
+    }
+    */
+    
+
+
+
     public void AddRooks(){
         //adds white rooks
         addPiece(new ChessPosition(1,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
@@ -68,12 +88,12 @@ public class ChessBoard {
         addPiece(new ChessPosition(8,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
     }
     public void AddKings(){
-        addPiece(new ChessPosition(1,4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
-        addPiece(new ChessPosition(8,4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(1,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        addPiece(new ChessPosition(8,5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
     }
     public void AddQueens(){
-        addPiece(new ChessPosition(1,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
-        addPiece(new ChessPosition(8,5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
+        addPiece(new ChessPosition(1,4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
+        addPiece(new ChessPosition(8,4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
 
     }
     public void resetBoard() {
@@ -84,8 +104,7 @@ public class ChessBoard {
         AddKnights();
         AddQueens();
         AddKings();
-
-        PrintChessBoard();
+        //PrintChessBoard();
 
     }
 }
