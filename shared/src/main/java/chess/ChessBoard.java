@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.Arrays;
-import java.util.Objects;
 //the following is a javadoc comment:
 /**
  *
@@ -24,9 +23,8 @@ public class ChessBoard {
             for(ChessPiece piece : row){
                 //if its not null call the piece's toString() method
                 if(piece != null){
-                    chessBoard.append(piece.toString());
+                    chessBoard.append(piece);
                 }
-                //iterate through each row and if its null : print " |"
                 else chessBoard.append(" |");
             }
             chessBoard.append("\n");
@@ -40,7 +38,7 @@ public class ChessBoard {
             return false;
         }
        else return this.toString().equals(that.toString());
-    };
+    }
 
     @Override
     public int hashCode() {
