@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+//the following is a javadoc comment:
 /**
  *
  * A chessboard that can hold and rearrange chess pieces.
@@ -13,17 +16,49 @@ public class ChessBoard {
     // write new hash method
     // write new equals method
     //intellij writes it for you and on the github
+    //make it so that when it returns the string, instead of the objects it does the pieceType and TeamColor
+    @Override
+    public String toString() {
+        StringBuilder chessBoard = new StringBuilder();
+        for(ChessPiece[] row : board){
+            for(ChessPiece piece : row){
+                //if its not null call the piece's toString() method
+                if(piece != null){
+                    chessBoard.append(piece.toString());
+                }
+                //iterate through each row and if its null : print " |"
+                else chessBoard.append(" |");
+            }
+            chessBoard.append("\n");
+        }
+        return chessBoard.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessBoard that)) {
+            return false;
+        }
+       else return this.toString().equals(that.toString());
+    };
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
+    }
+
     public ChessBoard() {
         board = new ChessPiece[9][9];
     }
-    public void PrintChessBoard() {
-        for (int i = 7; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                System.out.print(board[i][j].pieceType + " " + board[i][j].teamColor + " ");
-            }
-            System.out.println();
-        }
-    }
+
+//    public void PrintChessBoard() {
+//        for (int i = 7; i < 9; i++) {
+//            for (int j = 1; j < 9; j++) {
+//                System.out.print(board[i][j].pieceType + " " + board[i][j].teamColor + " ");
+//            }
+//            System.out.println();
+//        }
+//    }
 
     public void addPiece(ChessPosition position, ChessPiece piece) {
         this.board[position.getRow()][position.getColumn()] = piece;
@@ -48,23 +83,28 @@ public class ChessBoard {
             //System.out.println(this.board[row][i].teamColor + "1" + i);
         }
     }
-    /*
-    add all the special pieces
-    trying to rewrite addpiece functions to simplify
-    public void AddMinorPieces(){
-        ChessGame.TeamColor teamColor = ChessGame.TeamColor.WHITE;
-        int row = 1;
-        //rook
-        for(int i = 1; i < 9; i++) {
-            ChessPiece
-            addPiece(new ChessPosition(row,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
-        }
-    }
-    */
-    
 
+/*
+idea to make this code simpler:
+rookmap where key is the color and value is an array of defaultposition
+or piece map where key is the color and type, and value is an array of default positions
+key:  ChessPiece.PieceType.ROOK
+value: [1,1], [1,8], [8,1] ,[8,8]
 
+or
+//set color BLACK/OR WHITE
+foreach piecetype en enum:
+//add a piece using the color
+//ChessPiece piece = new ChessPiece
+//addPiece(new ChessPossition(piecesmap[teamColor, pieceType]),  ),
+key: ChessGame.TeamColor.WHITE, ChessPiece.PieceType.Rook
+value: [1,1], [1,8]
+key: ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK
+value: [8,1], [8,8]
 
+how to map an enum to the keys of a map??? and skip one??
+
+ */
     public void AddRooks(){
         //adds white rooks
         addPiece(new ChessPosition(1,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));

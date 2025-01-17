@@ -1,19 +1,47 @@
 package chess;
 
 
+import java.util.Objects;
+
 public class ChessPosition {
     private int row;
     private int col;
+
+    @Override
+    public String toString() {
+        return "ChessPosition{" +
+                "row=" + row +
+                ", col=" + col +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessPosition that)) {
+            return false;
+        }
+        return this.toString().equals(that.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col);
+    }
+
     public ChessPosition(int row, int col) {
        this.row = row;
        this.col = col;
     }
-    //gets the row of a chess position
+    /**
+     * Returns the Row of a ChessPosition
+     * */
     public int getRow() {
         return row;
     }
 
-    //gets the column of a chess position
+    /**
+     * Returns the Column of a ChessPosition
+     */
     public int getColumn() {
         return col;
     }
