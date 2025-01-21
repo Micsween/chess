@@ -49,15 +49,6 @@ public class ChessBoard {
         board = new ChessPiece[9][9];
     }
 
-//    public void PrintChessBoard() {
-//        for (int i = 7; i < 9; i++) {
-//            for (int j = 1; j < 9; j++) {
-//                System.out.print(board[i][j].pieceType + " " + board[i][j].teamColor + " ");
-//            }
-//            System.out.println();
-//        }
-//    }
-
     public void addPiece(ChessPosition position, ChessPiece piece) {
         this.board[position.getRow()][position.getColumn()] = piece;
     }

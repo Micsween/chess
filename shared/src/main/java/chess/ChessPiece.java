@@ -1,5 +1,7 @@
 package chess;
 
+import chess.movement.PawnMoves;
+
 import java.util.Collection;
 import java.util.Objects;
 
@@ -70,8 +72,15 @@ public class ChessPiece {
 
     //theres a VIDEOOO about this
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
-        //do a switch statement that calls the caluclator
-
+        ChessPiece piece = board.board[myPosition.getRow()][myPosition.getColumn()];
+        switch (piece.getPieceType()){
+            case PAWN:
+                PawnMoves pawnMoves = new PawnMoves();
+                return pawnMoves.pieceMoves(board,myPosition, piece);
+            case KNIGHT:   throw new RuntimeException("Not implemented");
+            case ROOK:  throw new RuntimeException("Not implemented");
+        }
+        return null;
+        //do a switch statement that calls the caluclato
     }
 }
