@@ -1,5 +1,6 @@
 package chess;
 
+import chess.movement.KingMovesCalculator;
 import chess.movement.PawnMoves;
 
 import java.util.Collection;
@@ -74,11 +75,10 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.board[myPosition.getRow()][myPosition.getColumn()];
         switch (piece.getPieceType()){
-            case PAWN:
-                PawnMoves pawnMoves = new PawnMoves();
-                return pawnMoves.pieceMoves(board,myPosition, piece);
-            case KNIGHT:   throw new RuntimeException("Not implemented");
-            case ROOK:  throw new RuntimeException("Not implemented");
+            case PAWN: return null;
+            case KING:
+               KingMovesCalculator kingMoves = new KingMovesCalculator();
+               return kingMoves.pieceMoves(board, myPosition, piece);
         }
         return null;
         //do a switch statement that calls the caluclato
