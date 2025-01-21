@@ -1,8 +1,6 @@
 package chess;
 
 import chess.movement.KingMovesCalculator;
-import chess.movement.PawnMoves;
-
 import java.util.Collection;
 import java.util.Objects;
 
@@ -51,7 +49,7 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN;
+        PAWN
 
     }
 
