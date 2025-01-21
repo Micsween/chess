@@ -1,6 +1,7 @@
 package chess;
 
-import chess.movement.KingMovesCalculator;
+import chess.movement.*;
+
 import java.util.Collection;
 import java.util.Objects;
 
@@ -72,13 +73,18 @@ public class ChessPiece {
     //theres a VIDEOOO about this
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.board[myPosition.getRow()][myPosition.getColumn()];
-        switch (piece.getPieceType()){
-            case PAWN: return null;
-            case KING:
-               KingMovesCalculator kingMoves = new KingMovesCalculator();
-               return kingMoves.pieceMoves(board, myPosition, piece);
-        }
-        return null;
+        //improve to be an enhanced switch
+        PieceMovesCalculator moves = switch (piece.getPieceType()){
+            case PAWN -> new PawnMovesCalculator();
+            case KING -> new KingMovesCalculator();
+            case QUEEN -> new QueenMovesCalculator();
+            case BISHOP -> new BishopMovesCalculator();
+            case KNIGHT -> new KnightMovesCalculator();
+            case ROOK -> new RookMovesCalculator();
+
+
+        };
+        return moves.pieceMoves(board, myPosition, piece);
         //do a switch statement that calls the caluclato
     }
 }

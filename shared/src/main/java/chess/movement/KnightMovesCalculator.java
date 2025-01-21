@@ -7,8 +7,7 @@ import chess.ChessPosition;
 
 import java.util.Collection;
 
-public class QueenMoves implements PieceMovesCalculator{
-    public void pieceMoves(){}
+public class KnightMovesCalculator implements PieceMovesCalculator{
 
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition chessPosition, ChessPiece piece) {

@@ -1,4 +1,4 @@
-package chess.movement;
+package chess.movement; //this is the directory that my file is in
 
 import chess.ChessBoard;
 import chess.ChessMove;
@@ -13,8 +13,20 @@ public class KingMovesCalculator implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition chessPosition, ChessPiece piece) {
         Collection<ChessMove> moves = new ArrayList<>();
-        //THIS IS ALL FOR A WHITE KING CHESSPIECE
-
+        /*
+        int row = chessPosition.getRow();
+        int col = chessPosition.getColumn();
+        int[][] possibleMoves = new int[][] {{row + 1, col}, {row-1, col}, {row, col-1}, {row, col + 1}, {row + 1 , col + 1}, {row + 1, col - 1}, {row - 1, col - 1}, {row - 1, col + 1}};
+        for(int[] possibleMove: possibleMoves){
+            //create a new chessmove
+            ChessPosition endPosition = new ChessPosition(possibleMove[0], possibleMove[1]);
+            // see if this new move is valid
+            if(insideBoard.insideBoard(endPosition) && ((board.getPiece(endPosition) == null) || ( board.getPiece(endPosition) != null && board.getPiece(endPosition).getTeamColor() != piece.getTeamColor()))) {
+                moves.add(new ChessMove(chessPosition, endPosition, null));
+            }
+            //if it is, add it to moves
+        }
+*/
         ChessPosition forward = new ChessPosition(chessPosition.getRow() + 1, chessPosition.getColumn());
         //if moving forward is inside the board, and the next space is empty, or its an enemy piece, its a valid move
         if(insideBoard.insideBoard(forward) && ((board.getPiece(forward) == null) || ( board.getPiece(forward) != null && board.getPiece(forward).getTeamColor() != piece.getTeamColor()))) {
@@ -46,7 +58,7 @@ public class KingMovesCalculator implements PieceMovesCalculator{
         ChessPosition backwardLeft = new ChessPosition(chessPosition.getRow() - 1, chessPosition.getColumn() - 1);
         if(insideBoard.insideBoard(backwardLeft) && ((board.getPiece(backwardLeft) == null) || ( board.getPiece(backwardLeft) != null && board.getPiece(backwardLeft).getTeamColor() != piece.getTeamColor()))) {
             moves.add(new ChessMove(chessPosition, backwardLeft, null));
-        }
+        }//
         ChessPosition backwardRight = new ChessPosition(chessPosition.getRow() - 1, chessPosition.getColumn() + 1);
         if(insideBoard.insideBoard(backwardRight) && ((board.getPiece(backwardRight) == null) || ( board.getPiece(backwardRight) != null && board.getPiece(backwardRight).getTeamColor() != piece.getTeamColor()))) {
             moves.add(new ChessMove(chessPosition,backwardRight, null));
