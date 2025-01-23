@@ -23,7 +23,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator{
         return moves;
     }
     public Collection<ChessMove> moveDiagonal(ChessBoard board, ChessPosition chessPosition, ChessPiece piece, int rowModifier, int colModifier) {
-        Collection<ChessMove> moves = new ArrayList<ChessMove>();
+        Collection<ChessMove> moves = new ArrayList<>();
         //create a new end position, check if its valid, and then add it to the collection of moves
         int row = chessPosition.getRow() + rowModifier;
         int col= chessPosition.getColumn() + colModifier;
