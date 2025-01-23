@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
-
+    //i think im going to complete scratch this part
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition chessPosition, ChessPiece piece) {
         //the collection of moves, returns empty if there are no possible moves.
         Collection<ChessMove> moves = new ArrayList<>();
