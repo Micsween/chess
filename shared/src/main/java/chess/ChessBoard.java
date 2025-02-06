@@ -9,14 +9,11 @@ import java.util.Arrays;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Cloneable{
    ChessPiece[][] board;
-    // write new to string method
-    // write new hash method
-    // write new equals method
-    //intellij writes it for you and on the github
-    //make it so that when it returns the string, instead of the objects it does the pieceType and TeamColor
-    @Override
+
+   //CLONE THE BOARD
+   @Override
     public String toString() {
         StringBuilder chessBoard = new StringBuilder();
         for(ChessPiece[] row : board){
@@ -45,6 +42,15 @@ public class ChessBoard {
         return Arrays.deepHashCode(board);
     }
 
+    /**
+     * Moves a piece on the board. Assumes the move that it
+     * has been given is VALID
+     */
+    public void makeMove(ChessMove move){
+        ChessPiece piece = this.getPiece(move.getStartPosition());
+        this.removePiece(move.getStartPosition());
+        this.addPiece(move.getEndPosition(), piece );
+    }
     public ChessBoard() {
         board = new ChessPiece[9][9];
     }
@@ -52,9 +58,21 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         this.board[position.getRow()][position.getColumn()] = piece;
     }
-
+    public void removePiece(ChessPosition position) {
+        this.board[position.getRow()][position.getColumn()] = null;
+    }
     public ChessPiece getPiece(ChessPosition position) {
         return this.board[position.getRow()][position.getColumn()];
+    }
+    public ChessPosition FindPiece(ChessPiece piece) {
+        for (int row = 8; row > 0; row--) {
+            for (int col = 1; col < 9; col++) {
+                if (board[row][col] != null && board[row][col].equals(piece)) {
+                    return new ChessPosition(row, col);
+                }
+            }
+        }
+        return null;
     }
 
     public void AddPawns(ChessGame.TeamColor teamColor) {
@@ -68,33 +86,10 @@ public class ChessBoard {
             ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
             ChessPosition position = new ChessPosition(row, i);
             addPiece(position, pawn);
-            //FOR DEBUGGING
-            //System.out.println(this.board[row][i].teamColor + "1" + i);
         }
     }
 
-/*
-idea to make this code simpler:
-rookmap where key is the color and value is an array of defaultposition
-or piece map where key is the color and type, and value is an array of default positions
-key:  ChessPiece.PieceType.ROOK
-value: [1,1], [1,8], [8,1] ,[8,8]
-
-or
-//set color BLACK/OR WHITE
-foreach piecetype en enum:
-//add a piece using the color
-//ChessPiece piece = new ChessPiece
-//addPiece(new ChessPossition(piecesmap[teamColor, pieceType]),  ),
-key: ChessGame.TeamColor.WHITE, ChessPiece.PieceType.Rook
-value: [1,1], [1,8]
-key: ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK
-value: [8,1], [8,8]
-
-how to map an enum to the keys of a map??? and skip one??
-
- */
-    public void AddRooks(){
+    private void AddRooks(){
         //adds white rooks
         addPiece(new ChessPosition(1,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(1,8),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
@@ -102,25 +97,25 @@ how to map an enum to the keys of a map??? and skip one??
         addPiece(new ChessPosition(8,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
         addPiece(new ChessPosition(8,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
     }
-    public void AddKnights(){
+    private void AddKnights(){
         addPiece(new ChessPosition(1,2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(1,7),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
         //adds black knights
         addPiece(new ChessPosition(8,2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
         addPiece(new ChessPosition(8,7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
     }
-    public void AddBishops(){
+    private void AddBishops(){
         addPiece(new ChessPosition(1,3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(1,6),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
         //adds bishops
         addPiece(new ChessPosition(8,3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
         addPiece(new ChessPosition(8,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
     }
-    public void AddKings(){
+    private void AddKings(){
         addPiece(new ChessPosition(1,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
         addPiece(new ChessPosition(8,5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
     }
-    public void AddQueens(){
+    private void AddQueens(){
         addPiece(new ChessPosition(1,4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
         addPiece(new ChessPosition(8,4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
 
@@ -133,7 +128,19 @@ how to map an enum to the keys of a map??? and skip one??
         AddKnights();
         AddQueens();
         AddKings();
-        //PrintChessBoard();
 
+    }
+    //I don't need to throw an exception because this is an override method
+    //now clone IS supported because I wrote a method for it
+    // So it should never throw a clone not supported error,
+    //If I ever threw that error it means that someone has created a bug.
+    // We don't want to handle that exception. Just fix the code.
+    @Override
+    public ChessBoard clone(){
+        try {
+            return (ChessBoard) super.clone();
+        } catch(CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

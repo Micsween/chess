@@ -69,11 +69,8 @@ public class ChessPiece {
      *
      * @return Collection of valid moves
      */
-
-    //theres a VIDEOOO about this
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        //improve to be an enhanced switch
         PieceMovesCalculator moves = switch (piece.getPieceType()){
             case PAWN -> new PawnMovesCalculator();
             case KING -> new KingMovesCalculator();
@@ -83,6 +80,5 @@ public class ChessPiece {
             case ROOK -> new RookMovesCalculator();
         };
         return moves.pieceMoves(board, myPosition, piece);
-        //do a switch statement that calls the caluclato
     }
 }

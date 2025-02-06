@@ -51,20 +51,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
         return firstMove;
     }
-    /*
-       case WHITE:
-                if(chessPosition.getRow() == 2){
-                    ChessPosition endPosition = new ChessPosition(chessPosition.getRow()+2, chessPosition.getColumn());
-                    return new ChessMove(chessPosition, endPosition, null);
-                }
-                break;
-            case BLACK:
-                if(chessPosition.getRow() == 7){
-                    ChessPosition endPosition = new ChessPosition(chessPosition.getRow()-2, chessPosition.getColumn());
-                    return new ChessMove(chessPosition, endPosition, null);
-                }
-     */
-    //option: I could write it so that this method just checks if its this pieces first move
 
     public Collection<ChessMove> forward(ChessBoard board, ChessPosition chessPosition, int rowModifier, ChessPiece piece) {
         Collection<ChessMove> moves = new ArrayList<>();
