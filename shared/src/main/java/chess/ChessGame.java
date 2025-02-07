@@ -13,7 +13,7 @@ import java.util.Collection;
 public class ChessGame {
     TeamColor teamTurn;
     ChessBoard chessBoard = new ChessBoard();
-    ValidPosition validPosition = new ValidPosition();
+    //ValidPosition validPosition = new ValidPosition();
     //implement lastMove ChessMove
     //might be useful to keep track of where the king is????
     /**
@@ -90,61 +90,52 @@ public class ChessGame {
     "valid" move for the piece at the starting location, or if it’s not the
      corresponding team's turn.
      */
+
+    public boolean isTurn(TeamColor teamColor) {
+        return (teamTurn == teamColor);
+    }
+    public void changeTurn() {
+        teamTurn = (teamTurn == TeamColor.BLACK)? TeamColor.WHITE : TeamColor.BLACK;
+    }
     /**
      * Makes a move in a chess game
      *
      * @param move chess move to preform
      * @throws InvalidMoveException if move is invalid
      */
-    /*
-    Make move take own piece
-    make move changes team turn
-     */
-    /*
-    * get all the valid moves for that piece and if move is not in that collection its invalid
-    * */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //get the team color of the first piece to find out if it matches with the team turn
-       ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
-       //if it's not their turn, or the piece is null, or the this would put the king in check, ITS INVALID
-        chessBoard.removePiece(move.getStartPosition());
-        chessBoard.addPiece(move.getEndPosition(), (move.getPromotionPiece() != null) ? new ChessPiece(teamTurn, move.getPromotionPiece()) : piece );
-        if(isInCheck(this.teamTurn, this.chessBoard)) {
-            //move the piece back if that move was invalid
-            chessBoard.removePiece(move.getEndPosition());
-            chessBoard.addPiece(move.getStartPosition(), piece);
-            throw new InvalidMoveException("You can not make a move that would put your king in check.");
+        ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
+        Collection<ChessMove> validMoves = this.validMoves(move.getStartPosition());
+        if(validMoves == null || !validMoves.contains(move) || !isTurn(piece.getTeamColor()) || isInCheck(piece.getTeamColor(), chessBoard.clone())) {
+            throw new InvalidMoveException("Invalid move: " + move);
         }
-        teamTurn = (teamTurn == TeamColor.BLACK)? TeamColor.WHITE : TeamColor.BLACK;
-    }
-    //make a copy of the board with this new move.
-    //check if the move would put the king in check
-    // if the move puts the king in check undo the move.
-    //make a new chessmove function that just checks i
+        chessBoard.makeMove(move);
+        //chessBoard.addPiece(move.getEndPosition(), (move.getPromotionPiece() != null) ? new ChessPiece(teamTurn, move.getPromotionPiece()) : piece );
+        if(move.getPromotionPiece() != null) {
+            chessBoard.promotePawn(move.getEndPosition(), move.getPromotionPiece());
+        }
+        this.changeTurn();
 
-/*
-if (move.getEndPosition().equals(kingPosition)) {
-                return true;
-            }
- */
+
+        //promote the piece if the move includes a piece to be promoted to
+    }
+
     /**
      * Determines if the given team is in check
      *
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    //isInCheck: Returns true if the specified team’s King could be captured by an opposing piece.
-    //could be simplified into just checking the last move
-//    public boolean isInCheck(TeamColor teamColor) {
-//        ChessPosition kingPosition = chessBoard.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-//        Collection<ChessMove> possibleMoves = AllMoves(teamColor);
-//        for(ChessMove move : possibleMoves) {
-//            if (move.getEndPosition().equals(kingPosition)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    public boolean isInCheck(TeamColor teamColor) {
+        ChessPosition kingPosition = this.chessBoard.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+        Collection<ChessMove> possibleMoves = AllMoves(teamColor);
+        for(ChessMove move : possibleMoves) {
+            if (move.getEndPosition().equals(kingPosition)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
         ChessPosition kingPosition = board.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
         Collection<ChessMove> possibleMoves = AllMoves(teamColor);

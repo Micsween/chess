@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Arrays;
+import java.util.Map;
 //the following is a javadoc comment:
 /**
  *
@@ -12,21 +13,37 @@ import java.util.Arrays;
 public class ChessBoard implements Cloneable{
    ChessPiece[][] board;
 
-   //CLONE THE BOARD
+    private static final Map<ChessPiece.PieceType, Character> TYPE_TO_CHAR_MAP = Map.of(
+            ChessPiece.PieceType.PAWN, 'p',
+            ChessPiece.PieceType.KNIGHT,'n',
+            ChessPiece.PieceType.ROOK, 'r',
+            ChessPiece.PieceType.QUEEN, 'q',
+            ChessPiece.PieceType.KING, 'k',
+            ChessPiece.PieceType.BISHOP, 'b');
+
    @Override
     public String toString() {
-        StringBuilder chessBoard = new StringBuilder();
-        for(ChessPiece[] row : board){
-            for(ChessPiece piece : row){
-                //if its not null call the piece's toString() method
+        StringBuilder chessBoardBuilder = new StringBuilder();
+        for(int row = 8; row > 0; row--){
+            for(int col = 0; col < 9; col++){
+                ChessPiece piece = board[row][col];
                 if(piece != null){
-                    chessBoard.append(piece);
+                    char pieceChar = TYPE_TO_CHAR_MAP.get(piece.getPieceType());
+                    switch(piece.getTeamColor()){
+                        case WHITE:
+                            chessBoardBuilder.append(Character.toUpperCase(pieceChar)).append("|");
+                            break;//a lowercase letter to represent the piece
+                        case BLACK:
+                            chessBoardBuilder.append(pieceChar).append("|");
+                            break;
+                    }
+                    //chessBoardBuilder.append(piece);
                 }
-                else chessBoard.append(" |");
+                else chessBoardBuilder.append(" |");
             }
-            chessBoard.append("\n");
+            chessBoardBuilder.append("\n");
         }
-        return chessBoard.toString();
+        return chessBoardBuilder.toString();
     }
 
     @Override
@@ -47,12 +64,15 @@ public class ChessBoard implements Cloneable{
      * has been given is VALID
      */
     public void makeMove(ChessMove move){
-        ChessPiece piece = this.getPiece(move.getStartPosition());
+        ChessPiece piece = getPiece(move.getStartPosition());
         this.removePiece(move.getStartPosition());
         this.addPiece(move.getEndPosition(), piece );
     }
     public ChessBoard() {
         board = new ChessPiece[9][9];
+    }
+    public ChessPiece[][] getBoard() {
+      return this.board;
     }
 
     public void addPiece(ChessPosition position, ChessPiece piece) {
@@ -130,6 +150,12 @@ public class ChessBoard implements Cloneable{
         AddKings();
 
     }
+    public void promotePawn(ChessPosition pawnPosition, ChessPiece.PieceType promotion) throws RuntimeException {
+        if(getPiece(pawnPosition) == null || getPiece(pawnPosition).getPieceType() != ChessPiece.PieceType.PAWN){
+            throw new RuntimeException("Given position does not contain a pawn");
+        }
+        addPiece(pawnPosition, new ChessPiece(getPiece(pawnPosition).getTeamColor(), promotion));
+    }
     //I don't need to throw an exception because this is an override method
     //now clone IS supported because I wrote a method for it
     // So it should never throw a clone not supported error,
@@ -138,7 +164,18 @@ public class ChessBoard implements Cloneable{
     @Override
     public ChessBoard clone(){
         try {
-            return (ChessBoard) super.clone();
+            ChessBoard clone = (ChessBoard) super.clone();
+            ChessPiece[][] clonedBoard = new ChessPiece[9][9];
+            for(int row = 8; row > 0; row--) {
+                for (int col = 0; col < 9; col++) {
+                    ChessPiece piece = board[row][col];
+                    if (piece != null) {
+                        clonedBoard[row][col] = getPiece(new ChessPosition(row, col));
+                    }
+                }
+            }
+            clone.board = clonedBoard;
+            return clone;
         } catch(CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
