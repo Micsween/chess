@@ -39,7 +39,6 @@ public class ChessBoard implements Cloneable{
                             chessBoardBuilder.append(pieceChar).append("|");
                             break;
                     }
-                    //chessBoardBuilder.append(piece);
                 }
                 else chessBoardBuilder.append(" |");
             }
@@ -97,61 +96,6 @@ public class ChessBoard implements Cloneable{
         return null;
     }
 
-    public void AddPawns(ChessGame.TeamColor teamColor) {
-        int row = 0;
-        if (teamColor == ChessGame.TeamColor.WHITE) {
-            row = 2;
-        }else if (teamColor == ChessGame.TeamColor.BLACK) {
-            row = 7;
-        }
-        for (int i = 1; i < 9; i++) {
-            ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
-            ChessPosition position = new ChessPosition(row, i);
-            addPiece(position, pawn);
-        }
-    }
-
-    private void AddRooks(){
-        //adds white rooks
-        addPiece(new ChessPosition(1,1),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
-        addPiece(new ChessPosition(1,8),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK));
-        //adds black rooks
-        addPiece(new ChessPosition(8,1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
-        addPiece(new ChessPosition(8,8), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
-    }
-    private void AddKnights(){
-        addPiece(new ChessPosition(1,2), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
-        addPiece(new ChessPosition(1,7),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT));
-        //adds black knights
-        addPiece(new ChessPosition(8,2), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
-        addPiece(new ChessPosition(8,7), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT));
-    }
-    private void AddBishops(){
-        addPiece(new ChessPosition(1,3), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(1,6),new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP));
-        //adds bishops
-        addPiece(new ChessPosition(8,3), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
-        addPiece(new ChessPosition(8,6), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP));
-    }
-    private void AddKings(){
-        addPiece(new ChessPosition(1,5), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
-        addPiece(new ChessPosition(8,5), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING));
-    }
-    private void AddQueens(){
-        addPiece(new ChessPosition(1,4), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN));
-        addPiece(new ChessPosition(8,4), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN));
-
-    }
-    public void resetBoard() {
-        AddPawns(ChessGame.TeamColor.WHITE);
-        AddPawns(ChessGame.TeamColor.BLACK);
-        AddRooks();
-        AddBishops();
-        AddKnights();
-        AddQueens();
-        AddKings();
-
-    }
     /**
      * Creates and returns a Collection of all possible chess moves for a team.
      */
@@ -159,7 +103,7 @@ public class ChessBoard implements Cloneable{
         Collection<ChessMove> allMoves = new ArrayList<>();
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
-                ChessPiece piece = this.board[row][col];
+                ChessPiece piece = getPiece(new ChessPosition(row,col));
                 if (piece != null && piece.getTeamColor() != teamColor) {
                     allMoves.addAll(piece.pieceMoves(this, new ChessPosition(row, col)));
                 }
@@ -173,7 +117,45 @@ public class ChessBoard implements Cloneable{
         }
         addPiece(pawnPosition, new ChessPiece(getPiece(pawnPosition).getTeamColor(), promotion));
     }
+    public void addPawns(ChessGame.TeamColor teamColor) {
+        int row = 0;
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            row = 2;
+        }else if (teamColor == ChessGame.TeamColor.BLACK) {
+            row = 7;
+        }
+        for (int i = 1; i < 9; i++) {
+            ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
+            ChessPosition position = new ChessPosition(row, i);
+            addPiece(position, pawn);
+        }
+    }
 
+    private static final Map<ChessPiece.PieceType, int[]> SPECIAL_PIECE_TO_COLUMN_MAP = Map.of(
+            ChessPiece.PieceType.KNIGHT,new int[]{2, 7},
+            ChessPiece.PieceType.ROOK, new int[]{1,8},
+            ChessPiece.PieceType.QUEEN, new int[]{4},
+            ChessPiece.PieceType.KING, new int[]{5},
+            ChessPiece.PieceType.BISHOP, new int[]{3,6}
+    );
+
+    public void addSpecialPieces(){
+        for(ChessPiece.PieceType pieceType : SPECIAL_PIECE_TO_COLUMN_MAP.keySet()){
+            int[] columns = SPECIAL_PIECE_TO_COLUMN_MAP.get(pieceType);
+            for(int col : columns){
+                ChessGame.TeamColor pieceColor = ChessGame.TeamColor.WHITE;
+                addPiece(new ChessPosition(1, col), new ChessPiece(pieceColor, pieceType));
+                pieceColor = ChessGame.TeamColor.BLACK;
+                addPiece(new ChessPosition(8, col), new ChessPiece(pieceColor, pieceType));
+            }
+        }
+    }
+
+    public void resetBoard() {
+        addPawns(ChessGame.TeamColor.WHITE);
+        addPawns(ChessGame.TeamColor.BLACK);
+        addSpecialPieces();
+    }
     @Override
     public ChessBoard clone(){
         try {
