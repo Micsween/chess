@@ -70,13 +70,15 @@ public class ChessGame {
         }
 
         Collection<ChessMove> pieceMoves = piece.pieceMoves(chessBoard, startPosition);
+        Collection<ChessMove> invalidMoves = new ArrayList<>();
         for (ChessMove move : pieceMoves) {
             ChessBoard simulatedBoard = chessBoard.clone();
             simulatedBoard.makeMove(move);
             if (isInCheck(piece.getTeamColor(), simulatedBoard)) {
-                pieceMoves.remove(move);
+                invalidMoves.add(move);
             }
         }
+        pieceMoves.removeAll(invalidMoves);
         return pieceMoves;
     }
 //I know with 100% certainty that validMoves returns a complete collection of valid moves.
@@ -128,7 +130,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = this.chessBoard.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        Collection<ChessMove> possibleMoves = AllMoves(teamColor);
+        Collection<ChessMove> possibleMoves = this.chessBoard.AllMoves(teamColor);
         for(ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {
                 return true;
@@ -138,7 +140,8 @@ public class ChessGame {
     }
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
         ChessPosition kingPosition = board.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        Collection<ChessMove> possibleMoves = AllMoves(teamColor);
+        //INCORRECT: THIS IS CHECKING ALL POSSIBLE MOVES FOR THE GAME BOARD< BUT NOT THE SIMULATED BOARD
+        Collection<ChessMove> possibleMoves = board.AllMoves(teamColor);
         for(ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {
                 return true;
@@ -146,21 +149,19 @@ public class ChessGame {
         }
         return false;
     }
-    /**
-     * Creates and returns a Collection of all possible chessmoves for a team.
-     */
-    public Collection<ChessMove> AllMoves(TeamColor teamColor) {
-        Collection<ChessMove> allMoves = new ArrayList<>();
-        for (int row = 8; row > 0; row--) {
-            for (int col = 1; col < 9; col++) {
-                ChessPiece piece = this.chessBoard.board[row][col];
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    allMoves.addAll(piece.pieceMoves(this.chessBoard, new ChessPosition(row, col)));
-                }
-            }
-        }
-        return allMoves;
-    }
+
+//    public Collection<ChessMove> AllMoves(TeamColor teamColor) {
+//        Collection<ChessMove> allMoves = new ArrayList<>();
+//        for (int row = 8; row > 0; row--) {
+//            for (int col = 1; col < 9; col++) {
+//                ChessPiece piece = this.chessBoard.board[row][col];
+//                if (piece != null && piece.getTeamColor() != teamColor) {
+//                    allMoves.addAll(piece.pieceMoves(this.chessBoard, new ChessPosition(row, col)));
+//                }
+//            }
+//        }
+//        return allMoves;
+//    }
     //all possible moves. returns a collection of all the possible moves
     // ANY piece could make
     //key-pair map where the key is a chessPiece and its pair is moves.

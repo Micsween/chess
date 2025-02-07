@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 //the following is a javadoc comment:
 /**
@@ -149,6 +151,21 @@ public class ChessBoard implements Cloneable{
         AddQueens();
         AddKings();
 
+    }
+    /**
+     * Creates and returns a Collection of all possible chessmoves for a team.
+     */
+    public Collection<ChessMove> AllMoves(ChessGame.TeamColor teamColor) {
+        Collection<ChessMove> allMoves = new ArrayList<>();
+        for (int row = 8; row > 0; row--) {
+            for (int col = 1; col < 9; col++) {
+                ChessPiece piece = this.board[row][col];
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    allMoves.addAll(piece.pieceMoves(this, new ChessPosition(row, col)));
+                }
+            }
+        }
+        return allMoves;
     }
     public void promotePawn(ChessPosition pawnPosition, ChessPiece.PieceType promotion) throws RuntimeException {
         if(getPiece(pawnPosition) == null || getPiece(pawnPosition).getPieceType() != ChessPiece.PieceType.PAWN){
