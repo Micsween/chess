@@ -153,7 +153,7 @@ public class ChessBoard implements Cloneable{
 
     }
     /**
-     * Creates and returns a Collection of all possible chessmoves for a team.
+     * Creates and returns a Collection of all possible chess moves for a team.
      */
     public Collection<ChessMove> AllMoves(ChessGame.TeamColor teamColor) {
         Collection<ChessMove> allMoves = new ArrayList<>();
@@ -173,11 +173,7 @@ public class ChessBoard implements Cloneable{
         }
         addPiece(pawnPosition, new ChessPiece(getPiece(pawnPosition).getTeamColor(), promotion));
     }
-    //I don't need to throw an exception because this is an override method
-    //now clone IS supported because I wrote a method for it
-    // So it should never throw a clone not supported error,
-    //If I ever threw that error it means that someone has created a bug.
-    // We don't want to handle that exception. Just fix the code.
+
     @Override
     public ChessBoard clone(){
         try {

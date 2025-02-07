@@ -81,17 +81,6 @@ public class ChessGame {
         pieceMoves.removeAll(invalidMoves);
         return pieceMoves;
     }
-//I know with 100% certainty that validMoves returns a complete collection of valid moves.
-// I can use this in my makeMove method!
-    /*
-    A move is valid if it is a "piece move" for the piece at the input
-    location and making that move would not leave the team’s king in danger of check.
-    makeMove: Receives a given move and executes it,
-    provided it is a legal move. If the move is illegal,
-    it throws an InvalidMoveException. A move is illegal if it is not a
-    "valid" move for the piece at the starting location, or if it’s not the
-     corresponding team's turn.
-     */
 
     public boolean isTurn(TeamColor teamColor) {
         return (teamTurn == teamColor);
@@ -140,7 +129,6 @@ public class ChessGame {
     }
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
         ChessPosition kingPosition = board.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        //INCORRECT: THIS IS CHECKING ALL POSSIBLE MOVES FOR THE GAME BOARD< BUT NOT THE SIMULATED BOARD
         Collection<ChessMove> possibleMoves = board.AllMoves(teamColor);
         for(ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {
@@ -149,23 +137,6 @@ public class ChessGame {
         }
         return false;
     }
-
-//    public Collection<ChessMove> AllMoves(TeamColor teamColor) {
-//        Collection<ChessMove> allMoves = new ArrayList<>();
-//        for (int row = 8; row > 0; row--) {
-//            for (int col = 1; col < 9; col++) {
-//                ChessPiece piece = this.chessBoard.board[row][col];
-//                if (piece != null && piece.getTeamColor() != teamColor) {
-//                    allMoves.addAll(piece.pieceMoves(this.chessBoard, new ChessPosition(row, col)));
-//                }
-//            }
-//        }
-//        return allMoves;
-//    }
-    //all possible moves. returns a collection of all the possible moves
-    // ANY piece could make
-    //key-pair map where the key is a chessPiece and its pair is moves.
-    //[piece] : its moves
 
     /**
      * Determines if the given team is in checkmate
@@ -181,11 +152,25 @@ public class ChessGame {
     //if you find one where youre not in check you return  false.
     //get all of the moves for a team and check each move on the cloned board
     public boolean isInCheckmate(TeamColor teamColor) {
-        //#1 theyre in check
-        //
-        throw new RuntimeException("Not implemented");
+        return(isInCheck(teamColor) && hasNoMoves(teamColor));
+        //#2 there is no way to get out of check. (or the team has no valid moves)
     }
 
+
+    public boolean hasNoMoves(TeamColor teamColor) {
+        for (int row = 8; row > 0; row--) {
+            for (int col = 1; col < 9; col++) {
+                ChessPiece piece = this.chessBoard.getPiece(new ChessPosition(row, col));
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = this.validMoves((new ChessPosition(row, col)));
+                    if(!moves.isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
@@ -194,8 +179,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return hasNoMoves(teamColor) && !isInCheck(teamColor);
     }
+
 
     /**
      * Sets this game's chessboard with a given board
