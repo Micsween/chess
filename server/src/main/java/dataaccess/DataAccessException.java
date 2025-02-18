@@ -8,3 +8,5 @@ public class DataAccessException extends Exception{
         super(message);
     }
 }
+//CREATE A SUBCLASS FOR DIFFERENT ERRORS
+

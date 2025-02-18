@@ -13,14 +13,16 @@ public interface GameDAO {
      * @param gameName a String to represent the name of the game
      * @param Username the username of the player who created the game
      */
-    void createGame(String gameName, String Username);
+    void createGame(String gameName, String Username) throws DataAccessException;
 
     /**
      * Retrieves GameData
      * @param gameID int; the ID for a game
      * @return GameData
+     * @throws DataAccessException if the game doesn't exist.
+
      */
-    GameData getGame(int gameID);
+    GameData getGame(int gameID)throws DataAccessException;
 
 
     /**
@@ -28,15 +30,17 @@ public interface GameDAO {
      * @param username the player joining the game
      * @param playerColor their requested color
      * @param gameID the ID of the game they're attempting to join
+     * @throws DataAccessException if the game doesn't exist.
      */
-    void updateGame(String username, ChessGame.TeamColor playerColor, int gameID);
+    void updateGame(String username, ChessGame.TeamColor playerColor, int gameID) throws DataAccessException;
 
     /**
      * @param gameID The game's ID
      * @param playerColor The specified team color
      * @return The username of a specified team color in a certain game, or null if there is none.
+     * @throws DataAccessException if the game doesn't exist.
      */
-    String getColorUsername(int gameID, ChessGame.TeamColor playerColor);
+    String getColorUsername(int gameID, ChessGame.TeamColor playerColor) throws DataAccessException;
 
     /**
      *
