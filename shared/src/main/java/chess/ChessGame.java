@@ -155,8 +155,6 @@ public class ChessGame {
         return(isInCheck(teamColor) && hasNoMoves(teamColor));
         //#2 there is no way to get out of check. (or the team has no valid moves)
     }
-
-
     public boolean hasNoMoves(TeamColor teamColor) {
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
