@@ -13,9 +13,6 @@ import java.util.Collection;
 public class ChessGame {
     TeamColor teamTurn;
     ChessBoard chessBoard = new ChessBoard();
-    //ValidPosition validPosition = new ValidPosition();
-    //implement lastMove ChessMove
-    //might be useful to keep track of where the king is????
     /**
      * Creates an immediately playable board with the pieces in their default locations
      * and the starting player set to WHITE.
@@ -48,14 +45,6 @@ public class ChessGame {
         WHITE,
         BLACK
     }
-
-    /*
-    validMoves: Takes as input a position on the chessboard and returns all moves the piece there can legally make.
-    If there is no piece at that location, this method returns null.
-    A move is valid if it is a "piece move" for the piece at the input location and
-     making that move would not leave the team’s king in danger of check.
-    */
-
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -68,18 +57,22 @@ public class ChessGame {
         if (piece == null) {
             return null;
         }
-
         Collection<ChessMove> pieceMoves = piece.pieceMoves(chessBoard, startPosition);
+        Collection<ChessMove> invalidMoves = getInvalidMoves(pieceMoves, piece);
+        pieceMoves.removeAll(invalidMoves);
+        return pieceMoves;
+    }
+
+    public Collection<ChessMove> getInvalidMoves(Collection<ChessMove> pieceMoves, ChessPiece piece) {
         Collection<ChessMove> invalidMoves = new ArrayList<>();
         for (ChessMove move : pieceMoves) {
             ChessBoard simulatedBoard = chessBoard.clone();
             simulatedBoard.makeMove(move);
-            if (isInCheck(piece.getTeamColor(), simulatedBoard)) {
+            if(isInCheck(piece.getTeamColor(), simulatedBoard)) {
                 invalidMoves.add(move);
             }
         }
-        pieceMoves.removeAll(invalidMoves);
-        return pieceMoves;
+        return  invalidMoves;
     }
 
     public boolean isTurn(TeamColor teamColor) {
@@ -97,20 +90,18 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
         Collection<ChessMove> validMoves = this.validMoves(move.getStartPosition());
-        if(validMoves == null || !validMoves.contains(move) || !isTurn(piece.getTeamColor()) || isInCheck(piece.getTeamColor(), chessBoard.clone())) {
+        if(!canMove(move,validMoves, piece)) {
             throw new InvalidMoveException("Invalid move: " + move);
         }
         chessBoard.makeMove(move);
-        //chessBoard.addPiece(move.getEndPosition(), (move.getPromotionPiece() != null) ? new ChessPiece(teamTurn, move.getPromotionPiece()) : piece );
         if(move.getPromotionPiece() != null) {
             chessBoard.promotePawn(move.getEndPosition(), move.getPromotionPiece());
         }
         this.changeTurn();
-
-
-        //promote the piece if the move includes a piece to be promoted to
     }
-
+    public boolean canMove(ChessMove move, Collection<ChessMove> validMoves, ChessPiece piece) {
+        return (validMoves != null && validMoves.contains(move) && isTurn(piece.getTeamColor()) && !isInCheck(piece.getTeamColor(), chessBoard.clone()));
+    }
     /**
      * Determines if the given team is in check
      *
@@ -144,18 +135,11 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    //you can use validMoves to check
-    //is in check? if its true it could checkamte
-    //does black have a move that could get you out of check?
-    //if i make a move will it leave me in check?
-    //clone the board, apply the move, and call is in check
-    //if you find one where youre not in check you return  false.
-    //get all of the moves for a team and check each move on the cloned board
     public boolean isInCheckmate(TeamColor teamColor) {
         return(isInCheck(teamColor) && hasNoMoves(teamColor));
-        //#2 there is no way to get out of check. (or the team has no valid moves)
     }
     public boolean hasNoMoves(TeamColor teamColor) {
+        //could replace this with call to AllMoves and a check to valid moves
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
                 ChessPiece piece = this.chessBoard.getPiece(new ChessPosition(row, col));
