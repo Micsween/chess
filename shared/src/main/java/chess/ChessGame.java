@@ -118,7 +118,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessPosition kingPosition = this.chessBoard.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+        ChessPosition kingPosition = this.chessBoard.getPiecePosition(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
         Collection<ChessMove> possibleMoves = this.chessBoard.AllMoves(teamColor);
         for(ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {
@@ -128,7 +128,7 @@ public class ChessGame {
         return false;
     }
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
-        ChessPosition kingPosition = board.FindPiece(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+        ChessPosition kingPosition = board.getPiecePosition(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
         Collection<ChessMove> possibleMoves = board.AllMoves(teamColor);
         for(ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {

@@ -85,7 +85,7 @@ public class ChessBoard implements Cloneable{
     public ChessPiece getPiece(ChessPosition position) {
         return this.board[position.getRow()][position.getColumn()];
     }
-    public ChessPosition FindPiece(ChessPiece piece) {
+    public ChessPosition getPiecePosition(ChessPiece piece) {
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
                 if (board[row][col] != null && board[row][col].equals(piece)) {
@@ -118,12 +118,7 @@ public class ChessBoard implements Cloneable{
         addPiece(pawnPosition, new ChessPiece(getPiece(pawnPosition).getTeamColor(), promotion));
     }
     public void addPawns(ChessGame.TeamColor teamColor) {
-        int row = 0;
-        if (teamColor == ChessGame.TeamColor.WHITE) {
-            row = 2;
-        }else if (teamColor == ChessGame.TeamColor.BLACK) {
-            row = 7;
-        }
+        int row = (teamColor == ChessGame.TeamColor.WHITE)? 2 : 7;
         for (int i = 1; i < 9; i++) {
             ChessPiece pawn = new ChessPiece(teamColor, ChessPiece.PieceType.PAWN);
             ChessPosition position = new ChessPosition(row, i);
