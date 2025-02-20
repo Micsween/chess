@@ -29,12 +29,13 @@ public class ChessPosition {
     }
 
     public ChessPosition(int row, int col) {
-       this.row = row;
-       this.col = col;
+        this.row = row;
+        this.col = col;
     }
+
     /**
      * Returns the Row of a ChessPosition
-     * */
+     */
     public int getRow() {
         return row;
     }

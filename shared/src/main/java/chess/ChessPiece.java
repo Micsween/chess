@@ -40,6 +40,7 @@ public class ChessPiece {
         this.pieceType = type;
         this.teamColor = pieceColor;
     }
+
     /**
      * The various different chess piece options
      */
@@ -55,7 +56,7 @@ public class ChessPiece {
     }
 
     public ChessGame.TeamColor getTeamColor() {
-       return teamColor;
+        return teamColor;
     }
 
     public PieceType getPieceType() {
@@ -71,7 +72,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        PieceMovesCalculator moves = switch (piece.getPieceType()){
+        PieceMovesCalculator moves = switch (piece.getPieceType()) {
             case PAWN -> new PawnMovesCalculator();
             case KING -> new KingMovesCalculator();
             case QUEEN -> new QueenMovesCalculator();

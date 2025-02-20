@@ -65,8 +65,9 @@ public class ChessMove {
     public ChessPiece.PieceType getPromotionPiece() {
         if (endPosition.getRow() == 8 || endPosition.getRow() == 1) {
             return promotionPiece;
+        } else {
+            return null;
         }
-        else return null;
         // a pawn is promoted if the move includes entering row 8 OR if the move includes entering row 1
     }
 }
