@@ -7,7 +7,7 @@ public interface UserDAO {
      * Creates a new user
      * @param userData New user's user data
      */
-    void createUser(UserData userData);
+    void createUser(UserData userData) throws DataAccessException;
     /**
      *
      * @param username given username

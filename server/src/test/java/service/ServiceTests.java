@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import dataaccess.*;
 import model.UserData;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
     @Test
@@ -20,6 +19,16 @@ public class ServiceTests {
         MemoryUserDAO userDAO = new MemoryUserDAO();
         userDAO.createUser(testUser);
         assertTrue(userDAO.allUsers.contains(testUser));
+    }
+    @Test
+    @DisplayName("Create user Negative Test Case")
+    public void createInvalidUser() throws DataAccessException {
+        //create a user using userData
+        UserData testUser = new UserData("admin", "admin", "admin");
+        UserData duplicateUser = new UserData("admin", "admin", "admin");
+        MemoryUserDAO userDAO = new MemoryUserDAO();
+        userDAO.createUser(testUser);
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(duplicateUser));
     }
 }
 
