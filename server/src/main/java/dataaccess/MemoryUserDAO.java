@@ -2,11 +2,35 @@ package dataaccess;
 
 import model.UserData;
 
-public record MemoryUserDAO() implements UserDAO {
+import java.util.Collection;
 
-    public void createUser(UserData userData){throw new RuntimeException("Not Implemented");};
-    public UserData getUser(String username) throws DataAccessException{throw new RuntimeException("Not Implemented"); }
-    public UserData verifyUser(String username, String password) throws DataAccessException{throw new RuntimeException("Not Implemented");}
-    public void clearAllUsers(){throw new RuntimeException("Not Implemented");}
+public class MemoryUserDAO implements UserDAO {
+    Collection<UserData> allUsers;
+
+    public void createUser(UserData userData){
+        allUsers.add(userData);
+    }
+
+    public UserData getUser(String username) throws DataAccessException{
+        for(UserData userdata : allUsers) {
+            if(userdata.username().equals(username)){
+                return userdata;
+            }
+        }
+        return null;
+    }
+
+    public UserData verifyUser(String username, String password) throws DataAccessException{
+        UserData user = getUser(username);
+        if(user != null && user.username().equals(username) && user.password().equals(password)) {
+            return user;
+        }else{
+            throw new DataAccessException("User not found or password not correct");
+        }
+    }
+
+    public void clearAllUsers(){
+        allUsers.clear();
+    }
 
 }
