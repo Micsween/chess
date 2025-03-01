@@ -23,7 +23,7 @@ public class MemoryUserDAO implements UserDAO {
                 return userdata;
             }
         }
-        return null;
+        throw new DataAccessException("User not found");
     }
 
     public UserData verifyUser(String username, String password) throws DataAccessException{
