@@ -2,10 +2,11 @@ package dataaccess;
 
 import model.UserData;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class MemoryUserDAO implements UserDAO {
-    Collection<UserData> allUsers;
+    public Collection<UserData> allUsers = new ArrayList<>();
 
     public void createUser(UserData userData){
         allUsers.add(userData);
