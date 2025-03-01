@@ -4,8 +4,8 @@ package chess;
 import java.util.Objects;
 
 public class ChessPosition {
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     @Override
     public String toString() {
