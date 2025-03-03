@@ -1,8 +1,6 @@
 package service.responses;
 
-import com.google.gson.Gson;
-
-public record ClearResponse(int StatusCode, String Message) {
+public record ClearResponse() {
 }
 //class Response {
 //    String message;
