@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.UserData;
+import service.responses.ClearResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,32 +11,32 @@ public class MemoryUserDAO implements UserDAO {
 
     public void createUser(UserData userData) throws DataAccessException {
 
-        if(!allUsers.contains(userData)){
+        if (!allUsers.contains(userData)) {
             allUsers.add(userData);
-        }else {
-            throw new DataAccessException("This user already exists");
+        } else {
+            throw new DataAccessException("User already taken");
         }
     }
 
-    public UserData getUser(String username) throws DataAccessException{
-        for(UserData userdata : allUsers) {
-            if(userdata.username().equals(username)){
+    public UserData getUser(String username) throws DataAccessException {
+        for (UserData userdata : allUsers) {
+            if (userdata.username().equals(username)) {
                 return userdata;
             }
         }
         throw new DataAccessException("User not found");
     }
 
-    public UserData verifyUser(String username, String password) throws DataAccessException{
+    public UserData verifyUser(String username, String password) throws DataAccessException {
         UserData user = getUser(username);
-        if(user != null && user.username().equals(username) && user.password().equals(password)) {
+        if (user != null && user.username().equals(username) && user.password().equals(password)) {
             return user;
-        }else{
+        } else {
             throw new DataAccessException("User not found or password not correct");
         }
     }
 
-    public void clearAllUsers(){
+    public void clearAllUsers() {
         allUsers.clear();
     }
 
