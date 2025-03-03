@@ -1,36 +1,79 @@
 package server;
 
-import spark.*;
+import static spark.Spark.*;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import service.GameService;
+import service.UserService;
+import service.requests.ClearRequest;
+import service.requests.RegisterRequest;
+import service.responses.ClearResponse;
+import service.responses.ErrorResponse;
+import service.responses.RegisterResponse;
+import service.responses.ServiceException;
+import spark.Response;
+import spark.Spark;
 
-/*
-If the web API requires an auth token, the handler can validate the auth token
-Might put this logic in a handler base class so it can be shared by multiple handlers or in a Service class that can be shared by multiple services
-Deserialize JSON request body to Java request object
-Call service class to perform the requested function, passing it the Java request object
-Receive Java response object from service
-Serialize Java response object to JSON
-Send HTTP response back to client with appropriate status code and response body
-
- */
 public class Server {
+    Gson gson = new Gson();
 
+    //put your most important stuff at the top
     public int run(int desiredPort) {
-        Spark.port(desiredPort);
-        Spark.staticFiles.location("web");
+        port(desiredPort);
+        staticFiles.location("web");
+
         //some reference to a handler look at the slides
         //handlers do all thejson work
+        //wehenever someone makes a post request on the path user, route that request to this handler
+        //JSon serializer that accepts a response object
 
-        Spark.post("/db", (request, response) -> "I've mapped the route /db!" );
+
+        post("/user", (request, response) -> {
+            try {
+                RegisterRequest registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
+                UserService userService = new UserService();
+                RegisterResponse registerResponse = userService.register(registerRequest);
+                return toJson(response, registerResponse);
+            } catch (ServiceException e) {
+                return toError(response, e.error);
+            } catch (JsonSyntaxException e) {
+                return toError(response, new ErrorResponse(400, "bad Request"));
+            } catch (Exception e) {
+                return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
+            }
+        });
+        delete("/db", (request, response) -> {
+            try {
+                ClearRequest clearRequest = gson.fromJson(request.body(), ClearRequest.class);
+                GameService gameService = new GameService();
+                ClearResponse clearResponse = gameService.clear();
+                return toJson(response, clearResponse);
+            } catch (Exception e) {
+                return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
+            }
+        });
         /*
            post("/submit", (request, response) -> "Submitted successfully");
          */
         // Register your endpoints and handle exceptions here.
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
-        Spark.awaitInitialization();
-        return Spark.port();
+        init();
+        awaitInitialization();
+        return port();
+    }
+
+    String toError(Response response, ErrorResponse errorResponse) {
+        response.status(errorResponse.statusCode());
+        response.type("application/json");
+        return gson.toJson(errorResponse);
+    }
+
+    //for success
+    String toJson(Response response, Object body) {
+        response.type("application/json");
+        return gson.toJson(body);
     }
 
     public void stop() {
