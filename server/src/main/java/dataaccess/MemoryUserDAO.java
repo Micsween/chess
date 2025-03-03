@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.UserData;
-import service.responses.ClearResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +28,7 @@ public class MemoryUserDAO implements UserDAO {
 
     public UserData verifyUser(String username, String password) throws DataAccessException {
         UserData user = getUser(username);
-        if (user != null && user.username().equals(username) && user.password().equals(password)) {
+        if (user != null && user.password().equals(password)) {
             return user;
         } else {
             throw new DataAccessException("User not found or password not correct");

@@ -28,13 +28,26 @@ public class UserService {
         return new RegisterResponse(registerRequest.username(), UUID.randomUUID().toString());
     }
 
-    public LoginResponse login(LoginRequest loginRequest) throws DataAccessException {
-        UserData user = memoryUserDAO.verifyUser(loginRequest.username(), loginRequest.password());
-        memoryAuthDAO.createAuth(new AuthData(UUID.randomUUID().toString(), loginRequest.username()));
-        return new LoginResponse(user.username(), user.password());
+    public LoginResponse login(LoginRequest loginRequest) throws ServiceException {
+        if (loginRequest.username() == null || loginRequest.password() == null) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+        //if something is missing throw an error
+        //if the data doesn't match anything in the memory user dao, verifyUser will also throw an error
+        try {
+            UserData user = memoryUserDAO.verifyUser(loginRequest.username(), loginRequest.password());
+            memoryAuthDAO.createAuth(new AuthData(UUID.randomUUID().toString(), loginRequest.username()));
+            return new LoginResponse(user.username(), user.password());
+        } catch (DataAccessException e) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
+
     }
 
-    public LogoutResponse logout(LogoutRequest logoutRequest) throws DataAccessException {
+    public LogoutResponse logout(LogoutRequest logoutRequest) throws ServiceException {
+        if (logoutRequest.authToken() == null) {
+            throw new ServiceException(401, "Error: unauthorized");
+        }
         memoryAuthDAO.deleteAuth(logoutRequest.authToken());
         return new LogoutResponse();
     }
