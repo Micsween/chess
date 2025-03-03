@@ -8,33 +8,34 @@ import java.util.Collection;
 public class MemoryAuthDAO {
     //authData service will PROVIDE authToken
     Collection<AuthData> allAuthData = new ArrayList<AuthData>();
-    public void createAuth(AuthData authData){
-        if(!allAuthData.contains(authData)){
+
+    public void createAuth(AuthData authData) throws DataAccessException {
+        if (allAuthData.contains(authData)) {
+            throw new DataAccessException("Auth data already exists");
+        } else {
             allAuthData.add(authData);
-        }else{
-            throw new RuntimeException("Auth data already exists");
         }
     }
 
-    public AuthData getAuth(String authToken) {
-        for(AuthData authData : allAuthData){
-            if(authData.authToken().equals(authToken)) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        for (AuthData authData : allAuthData) {
+            if (authData.authToken().equals(authToken)) {
                 return authData;
             }
         }
-        throw new RuntimeException("Auth token does not match");
+        throw new DataAccessException("Auth token does not match");
     }
 
-    public void deleteAuth(String authToken) {
+    public void deleteAuth(String authToken) throws DataAccessException {
         AuthData auth = getAuth(authToken);
-        if(auth != null) {
+        if (auth != null) {
             allAuthData.remove(auth);
-        }else{
+        } else {
             throw new RuntimeException("Auth token does not exist");
         }
     }
 
-    public void clearAllAuth(){
+    public void clearAllAuth() {
         allAuthData.clear();
     }
 }

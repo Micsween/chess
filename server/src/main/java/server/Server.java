@@ -20,6 +20,7 @@ import service.requests.*;
 public class Server {
     Gson gson = new Gson();
     UserService userService = new UserService();
+    GameService gameService = new GameService();
 
     //put your most important stuff at the top
     public int run(int desiredPort) {
@@ -59,14 +60,10 @@ public class Server {
         });
         delete("/session", (request, response) -> {
             try {
-                LogoutRequest logoutRequest = gson.fromJson(request.body(), LogoutRequest.class);
-                return userService.logout(logoutRequest);
-                //parse the logout request
-                //call logout from userService
-                //catch the error if the authToken is mmissing
-                //catch the error if the authToken is invalid
-                // catch any other errors.
-                //if everything is okay return Logout Resposne (which is an empty object).
+                String authToken = request.headers("authorization");
+                LogoutRequest logoutRequest = new LogoutRequest(request.headers("authorization"));
+                LogoutResponse logoutResponse = userService.logout(logoutRequest);
+                return toJson(response, logoutResponse);
             } catch (ServiceException e) {
                 return toError(response, e.error);
             }
@@ -85,12 +82,19 @@ public class Server {
                 return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
             }
         });
-        /*
-           post("/submit", (request, response) -> "Submitted successfully");
-         */
-        // Register your endpoints and handle exceptions here.
+        post("/game", (request, response) -> {
+            try {
+                CreateGameRequest createGameRequest = gson.fromJson(request.body(), CreateGameRequest.class);
+                CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
+                return toJson(response, createGameResponse);
+            } catch (ServiceException e) {
+                return toError(response, e.error);
+            } catch (Exception e) {
+                return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
+            }
+        });
 
-        //This line initializes the server and can be removed once you have a functioning endpoint 
+        //This line initializes the server and can be removed once you have a functioning endpoint
         init();
         awaitInitialization();
         return port();

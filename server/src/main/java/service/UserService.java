@@ -22,10 +22,14 @@ public class UserService {
         }
         try {
             memoryUserDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+            String authToken = UUID.randomUUID().toString();
+            AuthData authData = new AuthData(authToken, registerRequest.username());
+            memoryAuthDAO.createAuth(authData);
+            return new RegisterResponse(authData.authToken(), authData.username());
         } catch (DataAccessException e) {
             throw new ServiceException(403, "Error: already taken");
         }
-        return new RegisterResponse(registerRequest.username(), UUID.randomUUID().toString());
+
     }
 
     public LoginResponse login(LoginRequest loginRequest) throws ServiceException {
@@ -45,10 +49,11 @@ public class UserService {
     }
 
     public LogoutResponse logout(LogoutRequest logoutRequest) throws ServiceException {
-        if (logoutRequest.authToken() == null) {
+        try {
+            memoryAuthDAO.deleteAuth(logoutRequest.authToken());
+        } catch (DataAccessException e) {
             throw new ServiceException(401, "Error: unauthorized");
         }
-        memoryAuthDAO.deleteAuth(logoutRequest.authToken());
         return new LogoutResponse();
     }
 
