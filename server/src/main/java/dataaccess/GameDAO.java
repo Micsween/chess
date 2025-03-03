@@ -8,12 +8,7 @@ import java.util.Collection;
 public interface GameDAO {
     //define all the methods (actions that game can do)
 
-    /**
-     * Creates a game
-     *
-     * @param gameName a String to represent the name of the game
-     */
-    void createGame(String gameName) throws DataAccessException;
+    void createGame(GameData gameData) throws DataAccessException;
 
     /**
      * Retrieves GameData

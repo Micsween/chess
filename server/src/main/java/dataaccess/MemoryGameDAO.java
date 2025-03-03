@@ -6,27 +6,15 @@ import model.GameData;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Random;
 
 public class MemoryGameDAO implements GameDAO {
     public Collection<GameData> allGameData = new ArrayList<>();
 
-    public static String createGameID() {
-        Random random = new Random();
-        StringBuilder ID = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            int randomDigit = random.nextInt(10);
-            ID.append(randomDigit);
-        }
-        return ID.toString();
-    }
-
-    public void createGame(String gameName) throws DataAccessException {
-        GameData game = new GameData(createGameID(), "", "", gameName, new ChessGame());
-        if (allGameData.contains(game)) {
+    public void createGame(GameData gameData) throws DataAccessException {
+        if (allGameData.contains(gameData)) {
             throw new DataAccessException("Game already exists");
         } else {
-            allGameData.add(game);
+            allGameData.add(gameData);
         }
     }
 

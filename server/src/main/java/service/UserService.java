@@ -1,8 +1,6 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryUserDAO;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import service.requests.LoginRequest;
@@ -13,8 +11,15 @@ import service.responses.*;
 import java.util.UUID;
 
 public class UserService {
-    MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    ServerDAOs DAOs;
+    MemoryAuthDAO memoryAuthDAO;
+    MemoryUserDAO memoryUserDAO;
+
+    public UserService(dataaccess.ServerDAOs serverDAOs) {
+        this.DAOs = serverDAOs;
+        this.memoryAuthDAO = serverDAOs.memoryAuthDAO();
+        this.memoryUserDAO = serverDAOs.memoryUserDAO();
+    }
 
     public RegisterResponse register(RegisterRequest registerRequest) throws ServiceException {
         if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {

@@ -4,14 +4,12 @@ import static spark.Spark.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import dataaccess.MemoryAuthDAO;
+import dataaccess.MemoryGameDAO;
+import dataaccess.MemoryUserDAO;
+import dataaccess.ServerDAOs;
 import service.GameService;
 import service.UserService;
-import service.requests.ClearRequest;
-import service.requests.RegisterRequest;
-//import service.responses.ClearResponse;
-//import service.responses.ErrorResponse;
-//import service.responses.RegisterResponse;
-//import service.responses.ServiceException;
 import spark.Response;
 import spark.Spark;
 import service.responses.*;
@@ -19,8 +17,12 @@ import service.requests.*;
 
 public class Server {
     Gson gson = new Gson();
-    UserService userService = new UserService();
-    GameService gameService = new GameService();
+    ServerDAOs DAOs = new ServerDAOs(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
+    GameService gameService = new GameService(DAOs);
+    UserService userService = new UserService(DAOs);
+
+    public record GameNameRequest(String gameName) {
+    }
 
     //put your most important stuff at the top
     public int run(int desiredPort) {
@@ -60,7 +62,6 @@ public class Server {
         });
         delete("/session", (request, response) -> {
             try {
-                String authToken = request.headers("authorization");
                 LogoutRequest logoutRequest = new LogoutRequest(request.headers("authorization"));
                 LogoutResponse logoutResponse = userService.logout(logoutRequest);
                 return toJson(response, logoutResponse);
@@ -71,10 +72,6 @@ public class Server {
 
         delete("/db", (request, response) -> {
             try {
-                ClearRequest clearRequest = gson.fromJson(request.body(), ClearRequest.class);
-                GameService gameService = new GameService();
-
-                UserService userService = new UserService();
                 userService.clear();
                 ClearResponse clearResponse = gameService.clear();
                 return toJson(response, clearResponse);
@@ -82,9 +79,15 @@ public class Server {
                 return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
             }
         });
+        //public record CreateGameRequest(
+        //        String authToken,
+        //        String gameName) {
+        //}
         post("/game", (request, response) -> {
+            //gson.fromJson(request.body(), RegisterRequest.class);
             try {
-                CreateGameRequest createGameRequest = gson.fromJson(request.body(), CreateGameRequest.class);
+                GameNameRequest gameNameRequest = gson.fromJson(request.body(), GameNameRequest.class);
+                CreateGameRequest createGameRequest = new CreateGameRequest(request.headers("authorization"), gameNameRequest.gameName());
                 CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
                 return toJson(response, createGameResponse);
             } catch (ServiceException e) {
