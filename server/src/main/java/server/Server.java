@@ -47,6 +47,9 @@ public class Server {
             try {
                 ClearRequest clearRequest = gson.fromJson(request.body(), ClearRequest.class);
                 GameService gameService = new GameService();
+
+                UserService userService = new UserService();
+                userService.clear();
                 ClearResponse clearResponse = gameService.clear();
                 return toJson(response, clearResponse);
             } catch (Exception e) {

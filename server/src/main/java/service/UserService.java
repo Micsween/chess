@@ -8,10 +8,7 @@ import model.UserData;
 import service.requests.LoginRequest;
 import service.requests.LogoutRequest;
 import service.requests.RegisterRequest;
-import service.responses.LoginResponse;
-import service.responses.LogoutResponse;
-import service.responses.RegisterResponse;
-import service.responses.ServiceException;
+import service.responses.*;
 
 import java.util.UUID;
 
@@ -40,6 +37,11 @@ public class UserService {
     public LogoutResponse logout(LogoutRequest logoutRequest) throws DataAccessException {
         memoryAuthDAO.deleteAuth(logoutRequest.authToken());
         return new LogoutResponse();
+    }
+
+    public ClearResponse clear() {
+        memoryUserDAO.clearAllUsers();
+        return new ClearResponse();
     }
 
 }
