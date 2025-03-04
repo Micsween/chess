@@ -164,7 +164,7 @@ public class ServiceTests {
     @Test
     @Order(12)
     @DisplayName("listGames pos test")
-    public void ListGames() {
+    public void listGames() {
 
         RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
         RegisterResponse registerResponse = userService.register(registerRequest);
@@ -180,7 +180,7 @@ public class ServiceTests {
     @Test
     @Order(13)
     @DisplayName("listGames neg test")
-    public void BadListGames() {
+    public void badListGames() {
         RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
         RegisterResponse registerResponse = userService.register(registerRequest);
         CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
@@ -195,7 +195,7 @@ public class ServiceTests {
     @Test
     @Order(14)
     @DisplayName("register")
-    public void Register() {
+    public void register() {
         RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
         RegisterResponse registerResponse = userService.register(registerRequest);
         assertNotNull(registerResponse);
@@ -204,7 +204,7 @@ public class ServiceTests {
     @Test
     @Order(15)
     @DisplayName("register")
-    public void RegisterBad() {
+    public void registerBad() {
         RegisterRequest registerRequest = new RegisterRequest(null, user.password(), user.email());
         assertThrows(ServiceException.class, () -> userService.register(registerRequest));
     }

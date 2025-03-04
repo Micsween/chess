@@ -11,12 +11,12 @@ import service.responses.*;
 import java.util.UUID;
 
 public class UserService {
-    ServerDaos Daos;
+    ServerDaos daos;
     MemoryAuthDAO memoryAuthDao;
     MemoryUserDAO memoryUserDao;
 
     public UserService(ServerDaos serverDAOs) {
-        this.Daos = serverDAOs;
+        this.daos = serverDAOs;
         this.memoryAuthDao = serverDAOs.memoryAuthDAO();
         this.memoryUserDao = serverDAOs.memoryUserDAO();
     }
