@@ -76,8 +76,14 @@ public class GameService {
 
     }
 
-    public ListGamesResponse list() {
-        return new ListGamesResponse(memoryGameDAO.listGames());
+    public ListGamesResponse list(String authKey) {
+        try {
+            AuthData authData = memoryAuthDAO.getAuth(authKey);
+            return new ListGamesResponse(memoryGameDAO.listGames());
+        } catch (DataAccessException e) {
+            throw new ServiceException(401, e.getMessage());
+        }
+
     }
 
     public ClearResponse clear() {

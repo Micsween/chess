@@ -5,6 +5,7 @@ import static spark.Spark.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
+import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.Response;
@@ -18,6 +19,7 @@ public class Server {
     ServerDAOs DAOs = new ServerDAOs(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
     GameService gameService = new GameService(DAOs);
     UserService userService = new UserService(DAOs);
+    AuthService authService = new AuthService(DAOs);
 
     public record GameNameRequest(String gameName) {
     }
@@ -74,6 +76,7 @@ public class Server {
         delete("/db", (request, response) -> {
             try {
                 userService.clear();
+                authService.clear();
                 ClearResponse clearResponse = gameService.clear();
                 return toJson(response, clearResponse);
             } catch (Exception e) {
@@ -111,8 +114,12 @@ public class Server {
 
 
         get("/game", (request, response) -> {
-            ListGamesRequest listGamesRequest = gson.fromJson(request.body(), ListGamesRequest.class);
-            return toJson(response, gameService.list());
+            try {
+                ListGamesRequest listGamesRequest = new ListGamesRequest(request.headers("authorization"));
+                return toJson(response, gameService.list(listGamesRequest.authToken()));
+            } catch (ServiceException e) {
+                return toError(response, e.error);
+            }
         });
 
         //This line initializes the server and can be removed once you have a functioning endpoint
