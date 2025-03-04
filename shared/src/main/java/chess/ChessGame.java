@@ -105,7 +105,8 @@ public class ChessGame {
     }
 
     public boolean canMove(ChessMove move, Collection<ChessMove> validMoves, ChessPiece piece) {
-        return (validMoves != null && validMoves.contains(move) && isTurn(piece.getTeamColor()) && !isInCheck(piece.getTeamColor(), chessBoard.clone()));
+        return (validMoves != null && validMoves.contains(move)
+                && isTurn(piece.getTeamColor()) && !isInCheck(piece.getTeamColor(), chessBoard.clone()));
     }
 
     /**

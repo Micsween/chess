@@ -7,6 +7,7 @@ import java.util.Collection;
 
 public class KingMovesCalculator implements PieceMovesCalculator {
     ValidPosition validPosition = new ValidPosition();
+    public KnightMovesCalculator knightMovesCalculator = new KnightMovesCalculator();
 
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition chessPosition, ChessPiece piece) {
         Collection<ChessMove> moves = new ArrayList<>();
