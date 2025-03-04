@@ -23,7 +23,7 @@ public class MemoryAuthDAO {
                 return authData;
             }
         }
-        throw new DataAccessException("Auth token does not match");
+        throw new DataAccessException("Error: unauthorized");
     }
 
     public void deleteAuth(String authToken) throws DataAccessException {

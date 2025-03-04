@@ -59,7 +59,7 @@ public class GameService {
         //check if authkey exists,
         //if not, throw an authoirzation error
         //
-        if (joinGameRequest.authToken() == null || joinGameRequest.playerColor() == null || joinGameRequest.gameID() == null) {
+        if (joinGameRequest.authToken() == null || joinGameRequest.playerColor() == null || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK")) || joinGameRequest.gameID() == null) {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
@@ -67,7 +67,11 @@ public class GameService {
             memoryGameDAO.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
             return new JoinGameResponse();
         } catch (DataAccessException e) {
-            throw new ServiceException(401, e.getMessage());
+            if (e.getMessage().equals("Error: already taken.")) {
+                throw new ServiceException(403, e.getMessage());
+            } else {
+                throw new ServiceException(401, e.getMessage());
+            }
         }
 
     }

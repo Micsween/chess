@@ -45,8 +45,9 @@ public class UserService {
         //if the data doesn't match anything in the memory user dao, verifyUser will also throw an error
         try {
             UserData user = memoryUserDAO.verifyUser(loginRequest.username(), loginRequest.password());
-            memoryAuthDAO.createAuth(new AuthData(UUID.randomUUID().toString(), loginRequest.username()));
-            return new LoginResponse(user.username(), user.password());
+            String authKey = UUID.randomUUID().toString();
+            memoryAuthDAO.createAuth(new AuthData(authKey, loginRequest.username()));
+            return new LoginResponse(user.username(), authKey);
         } catch (DataAccessException e) {
             throw new ServiceException(401, "Error: unauthorized");
         }

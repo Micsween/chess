@@ -105,11 +105,8 @@ public class Server {
                 JoinGameRequest joinGameRequest = new JoinGameRequest(request.headers("authorization"), joinGameBody.playerColor(), joinGameBody.gameID());
                 return toJson(response, gameService.joinGame(joinGameRequest));
             } catch (ServiceException e) {
+                return toError(response, e.error);
             }
-            //try to create the game
-            //if the service
-            //
-            return null;
         });
 
 
