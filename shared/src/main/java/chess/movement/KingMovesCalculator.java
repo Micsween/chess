@@ -21,12 +21,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         };
         //for each move in the first row of possible moves,
         //check if its valid and if it is add it to the Collection<ChessMove>
-        for (int[] possiblePosition : possiblePositions) {
-            ChessPosition endPosition = new ChessPosition(possiblePosition[0], possiblePosition[1]);
-            if (validPosition.isValidPosition(board, endPosition, piece)) {
-                moves.add(new ChessMove(chessPosition, endPosition, null));
-            }
-        }
+        moves = validPosition.createPositions(possiblePositions, board, moves, piece, chessPosition);
 
         return moves;
     }
