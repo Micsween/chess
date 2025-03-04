@@ -37,18 +37,19 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
-    public void joinGame(String username, ChessGame.TeamColor playerColor, String gameID) {
+    public void joinGame(String username, String playerColor, String gameID) throws DataAccessException {
         GameData gameToJoin = getGame(gameID);
-        if (gameToJoin != null) {
-            allGameData.remove(gameToJoin);
-            switch (playerColor) {
-                case WHITE:
-                    allGameData.add(new GameData(gameToJoin.gameID(), username, gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game()));
-                    break;
-                case BLACK:
-                    allGameData.add(new GameData(gameToJoin.gameID(), gameToJoin.whiteUsername(), username, gameToJoin.gameName(), gameToJoin.game()));
-                    break;
-            }
+        if (gameToJoin == null) {
+            throw new DataAccessException("Error: already taken.");
+        }
+        allGameData.remove(gameToJoin);
+        switch (playerColor) {
+            case "WHITE":
+                allGameData.add(new GameData(gameToJoin.gameID(), username, gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game()));
+                break;
+            case "BLACK":
+                allGameData.add(new GameData(gameToJoin.gameID(), gameToJoin.whiteUsername(), username, gameToJoin.gameName(), gameToJoin.game()));
+                break;
         }
     }
 

@@ -4,16 +4,14 @@ import static spark.Spark.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.MemoryUserDAO;
-import dataaccess.ServerDAOs;
+import dataaccess.*;
 import service.GameService;
 import service.UserService;
 import spark.Response;
 import spark.Spark;
 import service.responses.*;
 import service.requests.*;
+
 
 public class Server {
     Gson gson = new Gson();
@@ -22,6 +20,9 @@ public class Server {
     UserService userService = new UserService(DAOs);
 
     public record GameNameRequest(String gameName) {
+    }
+
+    public record JoinGameBody(String playerColor, String gameID) {
     }
 
     //put your most important stuff at the top
@@ -95,6 +96,26 @@ public class Server {
             } catch (Exception e) {
                 return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
             }
+        });
+
+        put("/game", (request, response) -> {
+            try {
+                request.headers("authorization"); //gets AuthKey
+                JoinGameBody joinGameBody = gson.fromJson(request.body(), JoinGameBody.class);
+                JoinGameRequest joinGameRequest = new JoinGameRequest(request.headers("authorization"), joinGameBody.playerColor(), joinGameBody.gameID());
+                return toJson(response, gameService.joinGame(joinGameRequest));
+            } catch (ServiceException e) {
+            }
+            //try to create the game
+            //if the service
+            //
+            return null;
+        });
+
+
+        get("/game", (request, response) -> {
+            ListGamesRequest listGamesRequest = gson.fromJson(request.body(), ListGamesRequest.class);
+            return toJson(response, gameService.list());
         });
 
         //This line initializes the server and can be removed once you have a functioning endpoint

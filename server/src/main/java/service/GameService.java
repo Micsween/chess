@@ -6,11 +6,11 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryAuthDAO;
 import dataaccess.MemoryGameDAO;
 import dataaccess.ServerDAOs;
+import model.AuthData;
 import model.GameData;
-import service.requests.CreateGameRequest;
-import service.responses.ClearResponse;
-import service.responses.CreateGameResponse;
-import service.responses.ServiceException;
+import service.requests.*;
+import service.responses.*;
+
 
 import java.util.Random;
 
@@ -46,12 +46,34 @@ public class GameService {
         }
         try {
             String gameID = createGameID();
-            GameData game = new GameData(gameID, "", "", request.gameName(), new ChessGame());
+            GameData game = new GameData(gameID, null, null, request.gameName(), new ChessGame());
             memoryGameDAO.createGame(game);
             return new CreateGameResponse(gameID);
         } catch (DataAccessException e) {
             throw new ServiceException(400, "Error: bad request");
         }
+    }
+
+    //public record JoinGameRequest(String authToken, String playerColor, String gameID) {}
+    public JoinGameResponse joinGame(JoinGameRequest joinGameRequest) throws ServiceException {
+        //check if authkey exists,
+        //if not, throw an authoirzation error
+        //
+        if (joinGameRequest.authToken() == null || joinGameRequest.playerColor() == null || joinGameRequest.gameID() == null) {
+            throw new ServiceException(400, "Error: bad request");
+        }
+        try {
+            AuthData authData = memoryAuthDAO.getAuth(joinGameRequest.authToken());
+            memoryGameDAO.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
+            return new JoinGameResponse();
+        } catch (DataAccessException e) {
+            throw new ServiceException(401, e.getMessage());
+        }
+
+    }
+
+    public ListGamesResponse list() {
+        return new ListGamesResponse(memoryGameDAO.listGames());
     }
 
     public ClearResponse clear() {
