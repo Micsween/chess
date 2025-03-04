@@ -18,7 +18,7 @@ public class ServiceTests {
     @Test
     @Order(1)
     @DisplayName("Create user Positive Test")
-    public void createUserTest() throws DataAccessException {
+    public void createUserTest() throws AlreadyTakenException {
         //create a user using userData
         UserData testUser = new UserData("admin", "admin", "admin");
         MemoryUserDAO userDAO = new MemoryUserDAO();
@@ -29,7 +29,7 @@ public class ServiceTests {
     @Test
     @Order(2)
     @DisplayName("Create user Negative Test Case")
-    public void createExisting() throws DataAccessException {
+    public void createExisting() throws AlreadyTakenException {
         //create a user using userData
         UserData testUser = new UserData("admin", "admin", "admin");
         UserData duplicateUser = new UserData("admin", "admin", "admin");
@@ -41,7 +41,7 @@ public class ServiceTests {
     @Test
     @Order(3)
     @DisplayName("Get user postive test case")
-    public void getUserTest() throws DataAccessException {
+    public void getUserTest() throws DataAccessException, AlreadyTakenException {
         //create a user using userData
         UserData testUser = new UserData("admin", "admin", "admin");
         MemoryUserDAO userDAO = new MemoryUserDAO();
@@ -55,13 +55,13 @@ public class ServiceTests {
     public void getInvalidUser() throws DataAccessException {
         //create a user using userData
         MemoryUserDAO userDAO = new MemoryUserDAO();
-        assertThrows(DataAccessException.class, ()-> userDAO.getUser(new UserData("admin", "admin", "admin").username()));
+        assertThrows(DataAccessException.class, () -> userDAO.getUser(new UserData("admin", "admin", "admin").username()));
     }
 
     @Test
     @Order(5)
     @DisplayName("clear tests")
-    public void clearTest() throws DataAccessException {
+    public void clearTest() throws AlreadyTakenException {
         //create a user using userData
         UserData testUser = new UserData("admin", "admin", "admin");
         MemoryUserDAO userDAO = new MemoryUserDAO();

@@ -2,10 +2,7 @@ package service;
 
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
-import dataaccess.MemoryGameDAO;
-import dataaccess.ServerDAOs;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import service.requests.*;
@@ -41,8 +38,8 @@ public class GameService {
         }
         try {
             memoryAuthDAO.getAuth(request.authToken());
-        } catch (DataAccessException e) {
-            throw new ServiceException(401, "Error: unauthorized");
+        } catch (UnauthorizedException e) {
+            throw new ServiceException(401, e.getMessage());
         }
         try {
             String gameID = createGameID();
@@ -54,11 +51,7 @@ public class GameService {
         }
     }
 
-    //public record JoinGameRequest(String authToken, String playerColor, String gameID) {}
     public JoinGameResponse joinGame(JoinGameRequest joinGameRequest) throws ServiceException {
-        //check if authkey exists,
-        //if not, throw an authoirzation error
-        //
         if (joinGameRequest.authToken() == null || joinGameRequest.playerColor() == null || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK")) || joinGameRequest.gameID() == null) {
             throw new ServiceException(400, "Error: bad request");
         }
@@ -67,11 +60,11 @@ public class GameService {
             memoryGameDAO.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
             return new JoinGameResponse();
         } catch (DataAccessException e) {
-            if (e.getMessage().equals("Error: already taken.")) {
-                throw new ServiceException(403, e.getMessage());
-            } else {
-                throw new ServiceException(401, e.getMessage());
-            }
+            throw new ServiceException(400, e.getMessage());
+        } catch (AlreadyTakenException e) {
+            throw new ServiceException(403, e.getMessage());
+        } catch (UnauthorizedException e) {
+            throw new ServiceException(401, e.getMessage());
         }
 
     }
@@ -80,7 +73,7 @@ public class GameService {
         try {
             AuthData authData = memoryAuthDAO.getAuth(authKey);
             return new ListGamesResponse(memoryGameDAO.listGames());
-        } catch (DataAccessException e) {
+        } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }
 

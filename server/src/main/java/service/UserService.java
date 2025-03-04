@@ -31,18 +31,15 @@ public class UserService {
             AuthData authData = new AuthData(authToken, registerRequest.username());
             memoryAuthDAO.createAuth(authData);
             return new RegisterResponse(authData.authToken(), authData.username());
-        } catch (DataAccessException e) {
-            throw new ServiceException(403, "Error: already taken");
+        } catch (AlreadyTakenException e) {
+            throw new ServiceException(403, e.getMessage());
         }
-
     }
 
     public LoginResponse login(LoginRequest loginRequest) throws ServiceException {
         if (loginRequest.username() == null || loginRequest.password() == null) {
-            throw new ServiceException(401, "Error: unauthorized");
+            throw new ServiceException(400, "Error: bad request");
         }
-        //if something is missing throw an error
-        //if the data doesn't match anything in the memory user dao, verifyUser will also throw an error
         try {
             UserData user = memoryUserDAO.verifyUser(loginRequest.username(), loginRequest.password());
             String authKey = UUID.randomUUID().toString();
@@ -57,8 +54,8 @@ public class UserService {
     public LogoutResponse logout(LogoutRequest logoutRequest) throws ServiceException {
         try {
             memoryAuthDAO.deleteAuth(logoutRequest.authToken());
-        } catch (DataAccessException e) {
-            throw new ServiceException(401, "Error: unauthorized");
+        } catch (UnauthorizedException e) {
+            throw new ServiceException(401, e.getMessage());
         }
         return new LogoutResponse();
     }

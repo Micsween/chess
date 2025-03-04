@@ -8,12 +8,11 @@ import java.util.Collection;
 public class MemoryUserDAO implements UserDAO {
     public Collection<UserData> allUsers = new ArrayList<>();
 
-    public void createUser(UserData userData) throws DataAccessException {
-
+    public void createUser(UserData userData) throws AlreadyTakenException {
         if (!allUsers.contains(userData)) {
             allUsers.add(userData);
         } else {
-            throw new DataAccessException("User already taken");
+            throw new AlreadyTakenException();
         }
     }
 

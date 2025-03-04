@@ -32,12 +32,6 @@ public class Server {
         port(desiredPort);
         staticFiles.location("web");
 
-        //some reference to a handler look at the slides
-        //handlers do all thejson work
-        //wehenever someone makes a post request on the path user, route that request to this handler
-        //JSon serializer that accepts a response object
-
-
         post("/user", (request, response) -> {
             try {
                 RegisterRequest registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
@@ -83,12 +77,8 @@ public class Server {
                 return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
             }
         });
-        //public record CreateGameRequest(
-        //        String authToken,
-        //        String gameName) {
-        //}
+
         post("/game", (request, response) -> {
-            //gson.fromJson(request.body(), RegisterRequest.class);
             try {
                 GameNameRequest gameNameRequest = gson.fromJson(request.body(), GameNameRequest.class);
                 CreateGameRequest createGameRequest = new CreateGameRequest(request.headers("authorization"), gameNameRequest.gameName());
@@ -122,7 +112,6 @@ public class Server {
             }
         });
 
-        //This line initializes the server and can be removed once you have a functioning endpoint
         init();
         awaitInitialization();
         return port();
@@ -134,7 +123,6 @@ public class Server {
         return gson.toJson(errorResponse);
     }
 
-    //for success
     String toJson(Response response, Object body) {
         response.type("application/json");
         return gson.toJson(body);

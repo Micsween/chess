@@ -7,14 +7,16 @@ public interface AuthDao {
      * creates a new authorization given AuthData
      */
     void createAuth(AuthData authData); //authData service will PROVIDE authToken
+
     /**
      * @return AuthData if there exists an authorization for the given authToken.
      * @throws DataAccessException if the given authToken does not exist
      */
-    AuthData getAuth(String authToken) throws DataAccessException;
+    AuthData getAuth(String authToken) throws UnauthorizedException;
 
     /**
      * Deletes an authorization given an authToken
+     *
      * @throws DataAccessException if the given authToken does not exist
      */
     void deleteAuth(String authToken) throws DataAccessException;

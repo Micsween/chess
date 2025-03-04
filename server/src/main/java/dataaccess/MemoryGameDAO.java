@@ -37,22 +37,22 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
-    public void joinGame(String username, String playerColor, String gameID) throws DataAccessException {
+    public void joinGame(String username, String playerColor, String gameID) throws AlreadyTakenException, DataAccessException {
         GameData gameToJoin = getGame(gameID);
         if (gameToJoin == null) {
-            throw new DataAccessException("Error: already taken.");
+            throw new DataAccessException("Error: bad request");
         }
         allGameData.remove(gameToJoin);
         switch (playerColor) {
             case "WHITE":
                 if (gameToJoin.whiteUsername() != null) {
-                    throw new DataAccessException("Error: already taken.");
+                    throw new AlreadyTakenException();
                 }
                 allGameData.add(new GameData(gameToJoin.gameID(), username, gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game()));
                 break;
             case "BLACK":
                 if (gameToJoin.blackUsername() != null) {
-                    throw new DataAccessException("Error: already taken.");
+                    throw new AlreadyTakenException();
                 }
                 allGameData.add(new GameData(gameToJoin.gameID(), gameToJoin.whiteUsername(), username, gameToJoin.gameName(), gameToJoin.game()));
                 break;
@@ -60,7 +60,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
 
-    public String getColorUsername(String gameID, ChessGame.TeamColor playerColor) throws DataAccessException {
+    public String getColorUsername(String gameID, ChessGame.TeamColor playerColor) {
         GameData game = getGame(gameID);
         if (game != null) {
             return switch (playerColor) {
