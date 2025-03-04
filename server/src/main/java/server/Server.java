@@ -24,7 +24,7 @@ public class Server {
     public record GameNameRequest(String gameName) {
     }
 
-    public record JoinGameBody(String playerColor, String gameID) {
+    public record JoinGameBody(String playerColor, Integer gameID) {
     }
 
     //put your most important stuff at the top

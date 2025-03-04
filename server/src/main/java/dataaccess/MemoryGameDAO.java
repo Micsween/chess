@@ -18,9 +18,9 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
-    public GameData getGame(String gameID) {
+    public GameData getGame(Integer gameID) {
         for (GameData gameData : allGameData) {
-            if (Objects.equals(gameData.gameID(), gameID)) {
+            if (gameData.gameID().equals(gameID)) {
                 return gameData;
             }
         }
@@ -37,7 +37,7 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
-    public void joinGame(String username, String playerColor, String gameID) throws AlreadyTakenException, DataAccessException {
+    public void joinGame(String username, String playerColor, Integer gameID) throws AlreadyTakenException, DataAccessException {
         GameData gameToJoin = getGame(gameID);
         if (gameToJoin == null) {
             throw new DataAccessException("Error: bad request");
@@ -60,7 +60,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
 
-    public String getColorUsername(String gameID, ChessGame.TeamColor playerColor) {
+    public String getColorUsername(Integer gameID, ChessGame.TeamColor playerColor) {
         GameData game = getGame(gameID);
         if (game != null) {
             return switch (playerColor) {

@@ -17,7 +17,7 @@ public interface GameDAO {
      * @return GameData
      * @throws DataAccessException if the game doesn't exist.
      */
-    GameData getGame(String gameID) throws DataAccessException;
+    GameData getGame(Integer gameID) throws DataAccessException;
 
 
     /**
@@ -31,7 +31,7 @@ public interface GameDAO {
      * @return The username of a specified team color in a certain game, or null if there is none.
      * @throws DataAccessException if the game doesn't exist.
      */
-    String getColorUsername(String gameID, ChessGame.TeamColor playerColor) throws DataAccessException;
+    String getColorUsername(Integer gameID, ChessGame.TeamColor playerColor) throws DataAccessException;
 
     /**
      * @return a collection of all current GameData

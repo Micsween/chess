@@ -10,11 +10,13 @@ import service.responses.*;
 
 
 import java.util.Random;
+import java.util.UUID;
 
 public class GameService {
     ServerDAOs serverDAOs;
     MemoryAuthDAO memoryAuthDAO;
     MemoryGameDAO memoryGameDAO;
+    static Integer gameID = 1;
 
     public GameService(ServerDAOs serverDAOs) {
         this.serverDAOs = serverDAOs;
@@ -22,14 +24,8 @@ public class GameService {
         this.memoryGameDAO = serverDAOs.memoryGameDAO();
     }
 
-    public static String createGameID() {
-        Random random = new Random();
-        StringBuilder ID = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            int randomDigit = random.nextInt(10);
-            ID.append(randomDigit);
-        }
-        return ID.toString();
+    public Integer createGameID() {
+        return gameID++;
     }
 
     public CreateGameResponse createGame(CreateGameRequest request) throws ServiceException {
@@ -42,7 +38,7 @@ public class GameService {
             throw new ServiceException(401, e.getMessage());
         }
         try {
-            String gameID = createGameID();
+            Integer gameID = createGameID();
             GameData game = new GameData(gameID, null, null, request.gameName(), new ChessGame());
             memoryGameDAO.createGame(game);
             return new CreateGameResponse(gameID);
