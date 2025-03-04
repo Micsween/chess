@@ -1,11 +1,9 @@
 package dataaccess;
 
-import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 public class MemoryGameDAO implements GameDAO {
     public Collection<GameData> allGameData = new ArrayList<>();
@@ -25,16 +23,6 @@ public class MemoryGameDAO implements GameDAO {
             }
         }
         throw new RuntimeException("Game does not exist");
-    }
-
-    public void updateGame(GameData game) {
-        GameData gameToUpdate = getGame(game.gameID());
-        if (gameToUpdate != null) {
-            allGameData.remove(gameToUpdate);
-            allGameData.add(game);
-        } else {
-            throw new RuntimeException("Game does not exist");
-        }
     }
 
     public void joinGame(String username, String playerColor, Integer gameID) throws AlreadyTakenException, DataAccessException {
@@ -59,18 +47,6 @@ public class MemoryGameDAO implements GameDAO {
         }
     }
 
-
-    public String getColorUsername(Integer gameID, ChessGame.TeamColor playerColor) {
-        GameData game = getGame(gameID);
-        if (game != null) {
-            return switch (playerColor) {
-                case WHITE -> game.whiteUsername();
-                case BLACK -> game.blackUsername();
-            };
-        } else {
-            throw new RuntimeException("Game does not exist");
-        }
-    }
 
     public Collection<GameData> listGames() {
         return allGameData;

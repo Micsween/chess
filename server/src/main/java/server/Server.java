@@ -16,10 +16,10 @@ import service.requests.*;
 
 public class Server {
     Gson gson = new Gson();
-    ServerDAOs DAOs = new ServerDAOs(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
-    GameService gameService = new GameService(DAOs);
-    UserService userService = new UserService(DAOs);
-    AuthService authService = new AuthService(DAOs);
+    ServerDaos daos = new ServerDaos(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
+    GameService gameService = new GameService(daos);
+    UserService userService = new UserService(daos);
+    AuthService authService = new AuthService(daos);
 
     public record GameNameRequest(String gameName) {
     }
@@ -95,7 +95,8 @@ public class Server {
             try {
                 request.headers("authorization"); //gets AuthKey
                 JoinGameBody joinGameBody = gson.fromJson(request.body(), JoinGameBody.class);
-                JoinGameRequest joinGameRequest = new JoinGameRequest(request.headers("authorization"), joinGameBody.playerColor(), joinGameBody.gameID());
+                JoinGameRequest joinGameRequest = new JoinGameRequest(request.headers("authorization"),
+                        joinGameBody.playerColor(), joinGameBody.gameID());
                 return toJson(response, gameService.joinGame(joinGameRequest));
             } catch (ServiceException e) {
                 return toError(response, e.error);

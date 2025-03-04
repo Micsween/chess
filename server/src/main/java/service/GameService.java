@@ -8,24 +8,20 @@ import model.GameData;
 import service.requests.*;
 import service.responses.*;
 
-
-import java.util.Random;
-import java.util.UUID;
-
 public class GameService {
-    ServerDAOs serverDAOs;
-    MemoryAuthDAO memoryAuthDAO;
-    MemoryGameDAO memoryGameDAO;
-    static Integer gameID = 1;
+    ServerDaos serverDaos;
+    MemoryAuthDAO memoryAuthDao;
+    MemoryGameDAO memoryGameDao;
+    static Integer gameId = 1;
 
-    public GameService(ServerDAOs serverDAOs) {
-        this.serverDAOs = serverDAOs;
-        this.memoryAuthDAO = serverDAOs.memoryAuthDAO();
-        this.memoryGameDAO = serverDAOs.memoryGameDAO();
+    public GameService(ServerDaos serverDaos) {
+        this.serverDaos = serverDaos;
+        this.memoryAuthDao = serverDaos.memoryAuthDAO();
+        this.memoryGameDao = serverDaos.memoryGameDAO();
     }
 
-    public Integer createGameID() {
-        return gameID++;
+    private Integer createGameID() {
+        return gameId++;
     }
 
     public CreateGameResponse createGame(CreateGameRequest request) throws ServiceException {
@@ -33,14 +29,14 @@ public class GameService {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
-            memoryAuthDAO.getAuth(request.authToken());
+            memoryAuthDao.getAuth(request.authToken());
         } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }
         try {
             Integer gameID = createGameID();
             GameData game = new GameData(gameID, null, null, request.gameName(), new ChessGame());
-            memoryGameDAO.createGame(game);
+            memoryGameDao.createGame(game);
             return new CreateGameResponse(gameID);
         } catch (DataAccessException e) {
             throw new ServiceException(400, "Error: bad request");
@@ -48,12 +44,14 @@ public class GameService {
     }
 
     public JoinGameResponse joinGame(JoinGameRequest joinGameRequest) throws ServiceException {
-        if (joinGameRequest.authToken() == null || joinGameRequest.playerColor() == null || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK")) || joinGameRequest.gameID() == null) {
+        if (joinGameRequest.authToken() == null || joinGameRequest.playerColor() == null
+                || (!joinGameRequest.playerColor().equals("WHITE") && !joinGameRequest.playerColor().equals("BLACK"))
+                || joinGameRequest.gameID() == null) {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
-            AuthData authData = memoryAuthDAO.getAuth(joinGameRequest.authToken());
-            memoryGameDAO.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
+            AuthData authData = memoryAuthDao.getAuth(joinGameRequest.authToken());
+            memoryGameDao.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
             return new JoinGameResponse();
         } catch (DataAccessException e) {
             throw new ServiceException(400, e.getMessage());
@@ -65,19 +63,19 @@ public class GameService {
 
     }
 
+    public ClearResponse clear() {
+        memoryGameDao.clearAllGames();
+        return new ClearResponse();
+    }
+
     public ListGamesResponse list(String authKey) {
         try {
-            AuthData authData = memoryAuthDAO.getAuth(authKey);
-            return new ListGamesResponse(memoryGameDAO.listGames());
+            memoryAuthDao.getAuth(authKey);
+            return new ListGamesResponse(memoryGameDao.listGames());
         } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }
 
-    }
-
-    public ClearResponse clear() {
-        memoryGameDAO.clearAllGames();
-        return new ClearResponse();
     }
 
 }

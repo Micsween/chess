@@ -116,7 +116,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = this.chessBoard.getPiecePosition(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        Collection<ChessMove> possibleMoves = this.chessBoard.AllMoves(teamColor);
+        Collection<ChessMove> possibleMoves = this.chessBoard.allMoves(teamColor);
         for (ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {
                 return true;
@@ -127,7 +127,7 @@ public class ChessGame {
 
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
         ChessPosition kingPosition = board.getPiecePosition(new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-        Collection<ChessMove> possibleMoves = board.AllMoves(teamColor);
+        Collection<ChessMove> possibleMoves = board.allMoves(teamColor);
         for (ChessMove move : possibleMoves) {
             if (move.getEndPosition().equals(kingPosition)) {
                 return true;
@@ -150,7 +150,8 @@ public class ChessGame {
         //could replace this with call to AllMoves and a check to valid moves
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
-                ChessPiece piece = this.chessBoard.getPiece(new ChessPosition(row, col));
+                ChessPosition position = new ChessPosition(row, col);
+                ChessPiece piece = this.chessBoard.getPiece(position);
                 if (piece != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = this.validMoves((new ChessPosition(row, col)));
                     if (!moves.isEmpty()) {

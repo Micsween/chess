@@ -11,14 +11,14 @@ import service.responses.*;
 import java.util.UUID;
 
 public class UserService {
-    ServerDAOs DAOs;
-    MemoryAuthDAO memoryAuthDAO;
-    MemoryUserDAO memoryUserDAO;
+    ServerDaos Daos;
+    MemoryAuthDAO memoryAuthDao;
+    MemoryUserDAO memoryUserDao;
 
-    public UserService(dataaccess.ServerDAOs serverDAOs) {
-        this.DAOs = serverDAOs;
-        this.memoryAuthDAO = serverDAOs.memoryAuthDAO();
-        this.memoryUserDAO = serverDAOs.memoryUserDAO();
+    public UserService(ServerDaos serverDAOs) {
+        this.Daos = serverDAOs;
+        this.memoryAuthDao = serverDAOs.memoryAuthDAO();
+        this.memoryUserDao = serverDAOs.memoryUserDAO();
     }
 
     public RegisterResponse register(RegisterRequest registerRequest) throws ServiceException {
@@ -26,10 +26,10 @@ public class UserService {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
-            memoryUserDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
+            memoryUserDao.createUser(new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email()));
             String authToken = UUID.randomUUID().toString();
             AuthData authData = new AuthData(authToken, registerRequest.username());
-            memoryAuthDAO.createAuth(authData);
+            memoryAuthDao.createAuth(authData);
             return new RegisterResponse(authData.authToken(), authData.username());
         } catch (AlreadyTakenException e) {
             throw new ServiceException(403, e.getMessage());
@@ -41,9 +41,9 @@ public class UserService {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
-            UserData user = memoryUserDAO.verifyUser(loginRequest.username(), loginRequest.password());
+            UserData user = memoryUserDao.verifyUser(loginRequest.username(), loginRequest.password());
             String authKey = UUID.randomUUID().toString();
-            memoryAuthDAO.createAuth(new AuthData(authKey, loginRequest.username()));
+            memoryAuthDao.createAuth(new AuthData(authKey, loginRequest.username()));
             return new LoginResponse(user.username(), authKey);
         } catch (DataAccessException e) {
             throw new ServiceException(401, "Error: unauthorized");
@@ -53,7 +53,7 @@ public class UserService {
 
     public LogoutResponse logout(LogoutRequest logoutRequest) throws ServiceException {
         try {
-            memoryAuthDAO.deleteAuth(logoutRequest.authToken());
+            memoryAuthDao.deleteAuth(logoutRequest.authToken());
         } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }
@@ -61,7 +61,7 @@ public class UserService {
     }
 
     public ClearResponse clear() {
-        memoryUserDAO.clearAllUsers();
+        memoryUserDao.clearAllUsers();
         return new ClearResponse();
     }
 

@@ -2,18 +2,35 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
-import org.eclipse.jetty.server.Authentication;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import dataaccess.*;
 import model.UserData;
+import service.requests.*;
+import service.responses.*;
 
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
+    public static AuthService authService;
+    public static GameService gameService;
+    public static UserService userService;
+
+    public static UserData user;
+
+    @BeforeEach
+    public void setup() {
+        MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+        MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+        MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+        ServerDaos daos = new ServerDaos(memoryAuthDAO, memoryUserDAO, memoryGameDAO);
+        authService = new AuthService(daos);
+        gameService = new GameService(daos);
+        userService = new UserService(daos);
+        user = new UserData("NewUser", "newUser", "newUser@email");
+
+
+    }
 
     @Test
     @Order(1)
@@ -35,7 +52,7 @@ public class ServiceTests {
         UserData duplicateUser = new UserData("admin", "admin", "admin");
         MemoryUserDAO userDAO = new MemoryUserDAO();
         userDAO.createUser(testUser);
-        assertThrows(DataAccessException.class, () -> userDAO.createUser(duplicateUser));
+        assertThrows(AlreadyTakenException.class, () -> userDAO.createUser(duplicateUser));
     }
 
     @Test
@@ -52,10 +69,20 @@ public class ServiceTests {
     @Test
     @Order(4)
     @DisplayName("Get user negative test case")
-    public void getInvalidUser() throws DataAccessException {
+    public void getInvalidUser() {
         //create a user using userData
         MemoryUserDAO userDAO = new MemoryUserDAO();
         assertThrows(DataAccessException.class, () -> userDAO.getUser(new UserData("admin", "admin", "admin").username()));
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Test Clear AuthData")
+    public void clearAuthData() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        authService.clear();
+        assertThrows(UnauthorizedException.class, () -> authService.getAuth(registerResponse.authToken()));
     }
 
     @Test
@@ -69,23 +96,166 @@ public class ServiceTests {
         userDAO.clearAllUsers();
         assertTrue(userDAO.allUsers.isEmpty());
     }
+
+    @Test
+    @Order(7)
+    @DisplayName("Create game good")
+    public void createGame() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
+        assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("create game bad")
+    public void createBadGame() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest("I'm a bad authToken", "newGame");
+        assertThrows(ServiceException.class, () -> gameService.createGame(createGameRequest));
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("join game good")
+    public void joinGame() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
+        CreateGameResponse gameResponse = gameService.createGame(createGameRequest);
+        JoinGameRequest joinGameRequest = new JoinGameRequest(registerResponse.authToken(), "WHITE", gameResponse.gameID());
+        assertDoesNotThrow(() -> gameService.joinGame(joinGameRequest));
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("join game bad")
+    public void joinBadGame() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
+        CreateGameResponse gameResponse = gameService.createGame(createGameRequest);
+        JoinGameRequest joinGameRequest = new JoinGameRequest("dsfsas", "WHITE", gameResponse.gameID());
+        assertThrows(ServiceException.class, () -> gameService.joinGame(joinGameRequest));
+    }
+
+
+    @Test
+    @Order(11)
+    @DisplayName("clear games")
+    public void clearAllGames() {
+        Integer[] expectedGames = new Integer[2];
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
+        CreateGameResponse gameResponse = gameService.createGame(createGameRequest);
+        expectedGames[0] = gameResponse.gameID();
+
+        CreateGameRequest createGameRequest1 = new CreateGameRequest(registerResponse.authToken(), "anotherGame");
+        CreateGameResponse gameResponse1 = gameService.createGame(createGameRequest1);
+        expectedGames[1] = gameResponse1.gameID();
+        ListGamesResponse listGamesResponse = gameService.list(registerResponse.authToken());
+        gameService.clear();
+        assertNotEquals(expectedGames, listGamesResponse.games());
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("listGames pos test")
+    public void ListGames() {
+
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
+        gameService.createGame(createGameRequest);
+
+        CreateGameRequest createGameRequest1 = new CreateGameRequest(registerResponse.authToken(), "anotherGame");
+        gameService.createGame(createGameRequest1);
+
+        assertDoesNotThrow(() -> gameService.list(registerResponse.authToken()));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("listGames neg test")
+    public void BadListGames() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        CreateGameRequest createGameRequest = new CreateGameRequest(registerResponse.authToken(), "newGame");
+        gameService.createGame(createGameRequest);
+
+        CreateGameRequest createGameRequest1 = new CreateGameRequest(registerResponse.authToken(), "anotherGame");
+        gameService.createGame(createGameRequest1);
+
+        assertThrows(ServiceException.class, () -> gameService.list("bad authToken"));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("register")
+    public void Register() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        RegisterResponse registerResponse = userService.register(registerRequest);
+        assertNotNull(registerResponse);
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("register")
+    public void RegisterBad() {
+        RegisterRequest registerRequest = new RegisterRequest(null, user.password(), user.email());
+        assertThrows(ServiceException.class, () -> userService.register(registerRequest));
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("login good")
+    public void login() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        userService.register(registerRequest);
+        assertDoesNotThrow(() -> userService.login(new LoginRequest(user.username(), user.password())));
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("login bad")
+    public void loginBad() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        userService.register(registerRequest);
+        assertThrows(ServiceException.class, () -> userService.login(new LoginRequest(user.username(), "badPassword")));
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("logout")
+    public void logout() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        userService.register(registerRequest);
+        LoginResponse loginResponse = userService.login(new LoginRequest(user.username(), user.password()));
+        assertDoesNotThrow(() -> userService.logout(new LogoutRequest(loginResponse.authToken())));
+    }
+
+    @Test
+    @Order(19)
+    @DisplayName("bad logout")
+    public void badLogout() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        userService.register(registerRequest);
+        userService.login(new LoginRequest(user.username(), user.password()));
+        assertThrows(ServiceException.class, () -> userService.logout(new LogoutRequest("badAuth")));
+    }
+
+    @Test
+    @Order(20)
+    @DisplayName("clear")
+    public void clearUsers() {
+        RegisterRequest registerRequest = new RegisterRequest(user.username(), user.password(), user.email());
+        userService.register(registerRequest);
+        assertDoesNotThrow(() -> userService.login(new LoginRequest(user.username(), user.password())));
+        assertDoesNotThrow(() -> userService.clear());
+    }
+
+
 }
-
-/*
-   void createUser(UserData userData);
-
-UserData getUser(String username) throws DataAccessException;
-
-UserData verifyUser(String username, String password) throws DataAccessException;
-void clearAllUsers();
-*   @Test
-    @Order(1)
-    @DisplayName("Static Files")
-    public void staticFiles() {
-        String htmlFromServer = serverFacade.file("/").replaceAll("\r", "");
-        Assertions.assertEquals(HttpURLConnection.HTTP_OK, serverFacade.getStatusCode(),
-                "Server response code was not 200 OK");
-        Assertions.assertNotNull(htmlFromServer, "Server returned an empty file");
-        Assertions.assertTrue(htmlFromServer.contains("CS 240 Chess Server Web API"),
-                "file returned did not contain an exact match of text from provided index.html");
-    }*/

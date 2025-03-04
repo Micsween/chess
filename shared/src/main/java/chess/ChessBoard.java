@@ -106,7 +106,7 @@ public class ChessBoard implements Cloneable {
     /**
      * Creates and returns a Collection of all possible chess moves for a team.
      */
-    public Collection<ChessMove> AllMoves(ChessGame.TeamColor teamColor) {
+    public Collection<ChessMove> allMoves(ChessGame.TeamColor teamColor) {
         Collection<ChessMove> allMoves = new ArrayList<>();
         for (int row = 8; row > 0; row--) {
             for (int col = 1; col < 9; col++) {
