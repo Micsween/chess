@@ -34,7 +34,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         };
     }
 
-    void moveForward(ChessBoard board, ChessPosition chessPosition, ChessPiece piece, int rowModifier, Collection<ChessMove> moves) {
+    void moveForward(ChessBoard board, ChessPosition
+            chessPosition, ChessPiece piece, int rowModifier, Collection<ChessMove> moves) {
         ChessPosition endPosition = new ChessPosition(chessPosition.getRow() + rowModifier, chessPosition.getColumn());
         if (board.getPiece(endPosition) == null) {
             if (movePromotesPiece(endPosition)) {
@@ -51,7 +52,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
 
     }
 
-    void moveDiagonal(ChessBoard board, ChessPosition chessPosition, ChessPiece piece, int rowModifier, int colModifier, Collection<ChessMove> moves) {
+    void moveDiagonal(ChessBoard board, ChessPosition chessPosition,
+                      ChessPiece piece, int rowModifier, int colModifier, Collection<ChessMove> moves) {
         ChessPosition endPosition = new ChessPosition(
                 chessPosition.getRow() + rowModifier, chessPosition.getColumn() + colModifier);
         if ((validPosition.isValidPosition(board, endPosition, piece))

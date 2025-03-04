@@ -25,7 +25,8 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
         return moves;
     }
 
-    void moveDiagonal(ChessBoard board, ChessPosition chessPosition, ChessPiece piece, int rowModifier, int colModifier, Collection<ChessMove> moves) {
+    void moveDiagonal(ChessBoard board, ChessPosition chessPosition,
+                      ChessPiece piece, int rowModifier, int colModifier, Collection<ChessMove> moves) {
         int row = chessPosition.getRow() + rowModifier;
         int col = chessPosition.getColumn() + colModifier;
         ChessPosition endPosition = new ChessPosition(row, col);
@@ -41,7 +42,8 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
 
     }
 
-    public void moveCol(ChessBoard board, ChessPosition chessPosition, ChessPiece piece, int colModifier, Collection<ChessMove> moves) {
+    public void moveCol(ChessBoard board, ChessPosition chessPosition,
+                        ChessPiece piece, int colModifier, Collection<ChessMove> moves) {
         int col = chessPosition.getColumn() + colModifier;
         ChessPosition endPosition = new ChessPosition(chessPosition.getRow(), col);
         while (validPosition.isValidPosition(board, endPosition, piece)) {
@@ -54,7 +56,9 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
         }
     }
 
-    public void moveRow(ChessBoard board, ChessPosition chessPosition, ChessPiece piece, int rowModifier, Collection<ChessMove> moves) {
+    public void moveRow(ChessBoard board, ChessPosition chessPosition,
+                        ChessPiece piece, int rowModifier,
+                        Collection<ChessMove> moves) {
         int row = chessPosition.getRow() + rowModifier;
         ChessPosition endPosition = new ChessPosition(row, chessPosition.getColumn());
         while (validPosition.isValidPosition(board, endPosition, piece)) {
