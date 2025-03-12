@@ -1,23 +1,28 @@
 package passoff.server;
 
-import dataaccess.DBAuthDAO;
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
+import dataaccess.*;
 import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseSetupTests {
     DBAuthDAO dbAuthDAO = new DBAuthDAO();
+    DBUserDAO dbUserDAO = new DBUserDAO();
 
     @BeforeEach
-    public void setUp() {
-        //serverFacade.clear();
+    public void setup() {
+        UserData user = new UserData("adminUsername", "adminPassword", "admin@gmail.com");
+        try {
+            dbUserDAO.createUser(user);
+        } catch (AlreadyTakenException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @AfterAll
-    static void stopServer() {
+    static void clearUser() {
 
         //server.stop();
     }
@@ -35,6 +40,19 @@ public class DatabaseSetupTests {
     public void createAuth() {
         AuthData testAuth = new AuthData("potato", "testusername");
         dbAuthDAO.createAuth(testAuth);
+        //add an assert equals statement
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("DBUserDAO CreateUser")
+    public void addUser() {
+        UserData user = new UserData("anotherUser", "anotherPass", "another@gmail.com");
+        try {
+            dbUserDAO.createUser(user);
+        } catch (AlreadyTakenException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

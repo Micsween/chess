@@ -20,6 +20,7 @@ String sql = "INSERT INTO users (name, age, email) VALUES (?, ?, ?)";
         }
  */
 public class DBAuthDAO implements AuthDAO {
+
     public void createAuth(AuthData authData) {
         String sql = "INSERT INTO authdata (authToken, username) VALUES (?, ?)";
 
