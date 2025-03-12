@@ -29,15 +29,6 @@ public class DBUserDAO implements UserDAO {
         }
     }
 
-    /* public UserData getUser(String username) throws DataAccessException {
-        for (UserData userdata : allUsers) {
-            if (userdata.username().equals(username)) {
-                return userdata;
-            }
-        }
-        throw new DataAccessException("User not found");
-    }
-*/
     @Override
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection();
@@ -59,9 +50,11 @@ public class DBUserDAO implements UserDAO {
         }
     }
 
+    //may need to throw dataaccess exception if the password is incorrect.
     @Override
     public UserData verifyUser(String username, String password) throws DataAccessException {
-        return null;
+        UserData userData = getUser(username);
+        return (userData.password().equals(password) ? userData : null);
     }
 
     @Override
