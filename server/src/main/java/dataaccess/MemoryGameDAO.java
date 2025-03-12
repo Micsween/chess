@@ -25,6 +25,7 @@ public class MemoryGameDAO implements GameDAO {
         throw new RuntimeException("Game does not exist");
     }
 
+    @Override
     public void joinGame(String username, String playerColor, Integer gameID) throws AlreadyTakenException, DataAccessException {
         GameData gameToJoin = getGame(gameID);
         if (gameToJoin == null) {

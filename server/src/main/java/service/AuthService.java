@@ -4,13 +4,13 @@ import dataaccess.*;
 
 public class AuthService {
     ServerDaos daos;
-    MemoryAuthDAO memoryAuthDao;
-    MemoryUserDAO memoryUserDao;
+    AuthDAO memoryAuthDao;
+    UserDAO memoryUserDao;
 
     public AuthService(ServerDaos serverDAOs) {
         this.daos = serverDAOs;
-        this.memoryAuthDao = serverDAOs.memoryAuthDAO();
-        this.memoryUserDao = serverDAOs.memoryUserDAO();
+        this.memoryAuthDao = serverDAOs.authDao();
+        this.memoryUserDao = serverDAOs.userDAO();
     }
 
     public void getAuth(String authKey) throws UnauthorizedException {

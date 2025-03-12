@@ -18,6 +18,8 @@ public interface GameDAO {
      */
     GameData getGame(Integer gameID) throws DataAccessException;
 
+    void joinGame(String username, String playerColor, Integer gameID) throws AlreadyTakenException, DataAccessException;
+
     /**
      * @return a collection of all current GameData
      */

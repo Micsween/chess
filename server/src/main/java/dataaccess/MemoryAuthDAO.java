@@ -5,7 +5,7 @@ import model.AuthData;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MemoryAuthDAO {
+public class MemoryAuthDAO implements AuthDAO {
     //authData service will PROVIDE authToken
     Collection<AuthData> allAuthData = new ArrayList<AuthData>();
 

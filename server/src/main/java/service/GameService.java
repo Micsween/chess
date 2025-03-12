@@ -10,14 +10,14 @@ import service.responses.*;
 
 public class GameService {
     ServerDaos serverDaos;
-    MemoryAuthDAO memoryAuthDao;
-    MemoryGameDAO memoryGameDao;
+    AuthDAO authDao;
+    GameDAO gameDao;
     static Integer gameId = 1;
 
     public GameService(ServerDaos serverDaos) {
         this.serverDaos = serverDaos;
-        this.memoryAuthDao = serverDaos.memoryAuthDAO();
-        this.memoryGameDao = serverDaos.memoryGameDAO();
+        this.authDao = serverDaos.authDao();
+        this.gameDao = serverDaos.gameDao();
     }
 
     private Integer createGameID() {
@@ -29,14 +29,14 @@ public class GameService {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
-            memoryAuthDao.getAuth(request.authToken());
+            authDao.getAuth(request.authToken());
         } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }
         try {
             Integer gameID = createGameID();
             GameData game = new GameData(gameID, null, null, request.gameName(), new ChessGame());
-            memoryGameDao.createGame(game);
+            gameDao.createGame(game);
             return new CreateGameResponse(gameID);
         } catch (DataAccessException e) {
             throw new ServiceException(400, "Error: bad request");
@@ -50,8 +50,8 @@ public class GameService {
             throw new ServiceException(400, "Error: bad request");
         }
         try {
-            AuthData authData = memoryAuthDao.getAuth(joinGameRequest.authToken());
-            memoryGameDao.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
+            AuthData authData = authDao.getAuth(joinGameRequest.authToken());
+            gameDao.joinGame(authData.username(), joinGameRequest.playerColor(), joinGameRequest.gameID());
             return new JoinGameResponse();
         } catch (DataAccessException e) {
             throw new ServiceException(400, e.getMessage());
@@ -64,14 +64,14 @@ public class GameService {
     }
 
     public ClearResponse clear() {
-        memoryGameDao.clearAllGames();
+        gameDao.clearAllGames();
         return new ClearResponse();
     }
 
     public ListGamesResponse list(String authKey) {
         try {
-            memoryAuthDao.getAuth(authKey);
-            return new ListGamesResponse(memoryGameDao.listGames());
+            authDao.getAuth(authKey);
+            return new ListGamesResponse(gameDao.listGames());
         } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }

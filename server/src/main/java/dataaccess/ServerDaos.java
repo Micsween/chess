@@ -1,4 +1,4 @@
 package dataaccess;
 
-public record ServerDaos(MemoryAuthDAO memoryAuthDAO, MemoryUserDAO memoryUserDAO, MemoryGameDAO memoryGameDAO) {
+public record ServerDaos(AuthDAO authDao, UserDAO userDAO, GameDAO gameDao) {
 }

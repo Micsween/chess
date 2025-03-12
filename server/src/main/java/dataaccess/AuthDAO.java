@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 
-public interface AuthDao {
+public interface AuthDAO {
     /**
      * creates a new authorization given AuthData
      */
@@ -17,9 +17,9 @@ public interface AuthDao {
     /**
      * Deletes an authorization given an authToken
      *
-     * @throws DataAccessException if the given authToken does not exist
+     * @throws UnauthorizedException if the given authToken does not exist
      */
-    void deleteAuth(String authToken) throws DataAccessException;
+    public void deleteAuth(String authToken) throws UnauthorizedException;
 
     /**
      * Deletes ALL current AuthData
