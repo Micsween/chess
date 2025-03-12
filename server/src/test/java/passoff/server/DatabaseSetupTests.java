@@ -63,7 +63,6 @@ public class DatabaseSetupTests {
     public void getUser() {
         try {
             UserData userData = dbUserDao.getUser(user.username());
-            //System.out.println(userData);
             assertEquals(user, userData);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -80,6 +79,30 @@ public class DatabaseSetupTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    @Order(5)
+    @DisplayName("verify user")
+    public void verifyUser() {
+        try {
+            UserData userData = dbUserDao.verifyUser(user.username(), user.password());
+            assertEquals(user, userData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Incorrect Password")
+    public void verifyBadUser() {
+        try {
+            assertNull(dbUserDao.verifyUser(user.username(), "this is a bad password"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Test
     @DisplayName("Clear authdata")
