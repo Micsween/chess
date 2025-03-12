@@ -1,5 +1,6 @@
 package server;
 
+import static dataaccess.DatabaseManager.createDatabase;
 import static spark.Spark.*;
 
 import com.google.gson.Gson;
@@ -13,8 +14,8 @@ import spark.Spark;
 import service.responses.*;
 import service.requests.*;
 
-
 public class Server {
+
     Gson gson = new Gson();
     ServerDaos daos = new ServerDaos(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
     GameService gameService = new GameService(daos);
@@ -29,6 +30,11 @@ public class Server {
 
     //put your most important stuff at the top
     public int run(int desiredPort) {
+        try {
+            createDatabase();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         port(desiredPort);
         staticFiles.location("web");
 

@@ -36,12 +36,49 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+    private static void createTables() {
+        String[] tables = {
+                """
+CREATE TABLE IF NOT EXISTS gamedata (
+    gameID INT AUTO_INCREMENT PRIMARY KEY,
+    whiteUsername TEXT,
+    blackUsername TEXT,
+    gameName TEXT NOT NULL,
+    game JSON NOT NULL
+);""",
+                """
+CREATE TABLE IF NOT EXISTS userdata (
+   username VARCHAR(256) PRIMARY KEY,
+   password TEXT NOT NULL,
+   email TEXT NOT NULL)""",
+                """
+CREATE TABLE IF NOT EXISTS authdata(
+    authToken TEXT NOT NULL,
+    username VARCHAR(256) NOT NULL,
+    FOREIGN KEY (username) REFERENCES userdata(username)
+)"""};
+        try (var connection = getConnection()) {
+            for (var table : tables) {
+                try (var tableStatement = connection.prepareStatement(table)) {
+                    tableStatement.executeUpdate();
+                }
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException("unable to create tables. " + ex.getMessage());
+        }
+    }
+
+
+    public static void createDatabase() throws DataAccessException {
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
+
+//            var createAuthTable = "CREATE TABLE IF NOT EXISTS authdata (\n" +
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
+                createTables();
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -60,7 +97,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    public static Connection getConnection() throws DataAccessException {
         try {
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             conn.setCatalog(DATABASE_NAME);
