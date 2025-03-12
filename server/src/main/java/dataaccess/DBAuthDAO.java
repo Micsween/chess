@@ -47,7 +47,7 @@ public class DBAuthDAO implements AuthDAO {
 
     public void clearAllAuth() {
         try (var conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("TRUNCATE TABLE authdata")) {
+             PreparedStatement pstmt = conn.prepareStatement("TRUNCATE TABLE testing.authdata")) {
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

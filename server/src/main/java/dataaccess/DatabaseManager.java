@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS authdata(
         }
     }
 
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
