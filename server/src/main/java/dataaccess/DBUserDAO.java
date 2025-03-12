@@ -1,21 +1,22 @@
 package dataaccess;
 
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLIntegrityConstraintViolationException;
 
 public class DBUserDAO implements UserDAO {
-  
+
     @Override
     public void createUser(UserData userData) throws AlreadyTakenException {
         String sql = "INSERT INTO userdata (username, password, email) VALUES (?, ?, ?)";
-
+        //hash the password
         try (var conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, userData.username());
-            pstmt.setString(2, userData.password());
+            pstmt.setString(2, BCrypt.hashpw(userData.password(), BCrypt.gensalt()));
             pstmt.setString(3, userData.email());
             pstmt.executeUpdate();
 
@@ -50,7 +51,8 @@ public class DBUserDAO implements UserDAO {
     @Override
     public UserData verifyUser(String username, String password) throws DataAccessException {
         UserData userData = getUser(username);
-        return (userData.password().equals(password) ? userData : null);
+        return (BCrypt.checkpw(password, userData.password())) ? userData : null;
+
     }
 
     @Override

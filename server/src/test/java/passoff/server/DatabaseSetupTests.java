@@ -12,12 +12,14 @@ public class DatabaseSetupTests {
     static DBAuthDAO dbAuthDao = new DBAuthDAO();
     static DBUserDAO dbUserDao = new DBUserDAO();
     UserData user = new UserData("adminUsername", "adminPassword", "admin@gmail.com");
+    AuthData auth = new AuthData("imcool22", "adminUsername");
 
     @BeforeEach
     public void setup() {
         try {
             createDatabase();
             dbUserDao.createUser(user);
+            dbAuthDao.createAuth(auth);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,9 +42,7 @@ public class DatabaseSetupTests {
     @Order(2)
     @DisplayName("DBAuthDAO CreateAuth")
     public void createAuth() {
-        AuthData testAuth = new AuthData("potato", "adminUsername");
-        dbAuthDao.createAuth(testAuth);
-        //add an assert equals statement
+        dbAuthDao.createAuth(auth);
     }
 
     @Test
@@ -105,6 +105,51 @@ public class DatabaseSetupTests {
     public void verifyBadUser() {
         try {
             assertNull(dbUserDao.verifyUser(user.username(), "this is a bad password"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("get correct auth data")
+    public void getGoodAuth() {
+        try {
+            AuthData authData = dbAuthDao.getAuth(auth.authToken());
+            assertEquals(auth, authData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("get bad auth data")
+    public void getBadAuth() {
+        assertThrows(UnauthorizedException.class, () -> dbAuthDao.getAuth("this auth does not exist"));
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("delete correct auth data")
+    public void deleteAuth() {
+        try {
+            assertDoesNotThrow((() -> dbAuthDao.getAuth(auth.authToken())));
+            dbAuthDao.deleteAuth(auth.authToken());
+            assertThrows(UnauthorizedException.class, () -> dbAuthDao.getAuth(auth.authToken()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("delete bad auth Token")
+    public void deleteBadAuth() {
+        try {
+            assertThrows(UnauthorizedException.class, () -> dbAuthDao.deleteAuth("this auth does not exist"));
+            assertEquals(auth,
+                    dbAuthDao.getAuth(auth.authToken()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
