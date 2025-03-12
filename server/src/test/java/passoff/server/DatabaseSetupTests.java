@@ -5,26 +5,29 @@ import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
+import static dataaccess.DatabaseManager.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseSetupTests {
-    DBAuthDAO dbAuthDAO = new DBAuthDAO();
-    DBUserDAO dbUserDAO = new DBUserDAO();
+    static DBAuthDAO dbAuthDao = new DBAuthDAO();
+    static DBUserDAO dbUserDao = new DBUserDAO();
 
     @BeforeEach
     public void setup() {
+
         UserData user = new UserData("adminUsername", "adminPassword", "admin@gmail.com");
         try {
-            dbUserDAO.createUser(user);
-        } catch (AlreadyTakenException e) {
+            createDatabase();
+            dbUserDao.createUser(user);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @AfterAll
-    static void clearUser() {
-
-        //server.stop();
+    static void clear() {
+        dbAuthDao.clearAllAuth();
+        dbUserDao.clearAllUsers();
     }
 
     @Test
@@ -38,8 +41,8 @@ public class DatabaseSetupTests {
     @Order(2)
     @DisplayName("DBAuthDAO CreateAuth")
     public void createAuth() {
-        AuthData testAuth = new AuthData("potato", "testusername");
-        dbAuthDAO.createAuth(testAuth);
+        AuthData testAuth = new AuthData("potato", "adminUsername");
+        dbAuthDao.createAuth(testAuth);
         //add an assert equals statement
     }
 
@@ -49,15 +52,23 @@ public class DatabaseSetupTests {
     public void addUser() {
         UserData user = new UserData("anotherUser", "anotherPass", "another@gmail.com");
         try {
-            dbUserDAO.createUser(user);
+            dbUserDao.createUser(user);
         } catch (AlreadyTakenException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Test
-    @DisplayName("Delete Database")
-    public void delete() {
+    @DisplayName("Clear authdata")
+    public void clearAuthData() {
+        dbAuthDao.clearAllAuth();
+
+    }
+
+    @Test
+    @DisplayName("Clear userdata")
+    public void clearUserData() {
+        dbUserDao.clearAllUsers();
 
     }
 

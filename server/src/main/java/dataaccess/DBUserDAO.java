@@ -41,6 +41,13 @@ public class DBUserDAO implements UserDAO {
 
     @Override
     public void clearAllUsers() {
-
+        try (var conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("""
+                      DELETE FROM userdata;
+                     """)) {
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 }

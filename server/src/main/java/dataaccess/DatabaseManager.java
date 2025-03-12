@@ -56,6 +56,8 @@ CREATE TABLE IF NOT EXISTS authdata(
     authToken TEXT NOT NULL,
     username VARCHAR(256) NOT NULL,
     FOREIGN KEY (username) REFERENCES userdata(username)
+    ON DELETE CASCADE
+      
 )"""};
         try (var connection = getConnection()) {
             for (var table : tables) {
