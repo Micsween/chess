@@ -59,6 +59,13 @@ public class DatabaseSetupTests {
 
     @Test
     @Order(4)
+    @DisplayName("DBUserDAO add already existing user")
+    public void addAlreadyExistingUser() {
+        assertThrows(AlreadyTakenException.class, () -> dbUserDao.createUser(user));
+    }
+
+    @Test
+    @Order(4)
     @DisplayName("getUser")
     public void getUser() {
         try {
