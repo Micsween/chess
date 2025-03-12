@@ -11,11 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DatabaseSetupTests {
     static DBAuthDAO dbAuthDao = new DBAuthDAO();
     static DBUserDAO dbUserDao = new DBUserDAO();
+    UserData user = new UserData("adminUsername", "adminPassword", "admin@gmail.com");
 
     @BeforeEach
     public void setup() {
-
-        UserData user = new UserData("adminUsername", "adminPassword", "admin@gmail.com");
         try {
             createDatabase();
             dbUserDao.createUser(user);
@@ -24,8 +23,8 @@ public class DatabaseSetupTests {
         }
     }
 
-    @AfterAll
-    static void clear() {
+    @AfterEach
+    void clear() {
         dbAuthDao.clearAllAuth();
         dbUserDao.clearAllUsers();
     }
@@ -50,10 +49,34 @@ public class DatabaseSetupTests {
     @Order(3)
     @DisplayName("DBUserDAO CreateUser")
     public void addUser() {
-        UserData user = new UserData("anotherUser", "anotherPass", "another@gmail.com");
+        UserData otherUser = new UserData("anotherUser", "anotherPass", "another@gmail.com");
         try {
-            dbUserDao.createUser(user);
+            dbUserDao.createUser(otherUser);
         } catch (AlreadyTakenException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("getUser")
+    public void getUser() {
+        try {
+            UserData userData = dbUserDao.getUser(user.username());
+            //System.out.println(userData);
+            assertEquals(user, userData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("get nonexistent User")
+    public void getBadUser() {
+        try {
+            assertThrows(DataAccessException.class, () -> dbUserDao.getUser("I don't exist"));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

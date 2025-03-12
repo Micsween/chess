@@ -29,9 +29,34 @@ public class DBUserDAO implements UserDAO {
         }
     }
 
+    /* public UserData getUser(String username) throws DataAccessException {
+        for (UserData userdata : allUsers) {
+            if (userdata.username().equals(username)) {
+                return userdata;
+            }
+        }
+        throw new DataAccessException("User not found");
+    }
+*/
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        try (var conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("""
+                      SELECT * FROM userdata
+                      WHERE username=(?);
+                     """)) {
+            pstmt.setString(1, username);
+            var resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                String password = resultSet.getString("password");
+                String email = resultSet.getString("email");
+                return new UserData(username, password, email);
+            } else {
+                throw new DataAccessException("User not found");
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
