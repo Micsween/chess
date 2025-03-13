@@ -61,7 +61,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     @DisplayName("try to create auth but its bad CreateAuth")
     public void createBadAuth() {
         assertThrows(Exception.class, () -> dbAuthDao.createAuth(null));
@@ -70,7 +70,7 @@ public class DatabaseSetupTests {
 
 
     @Test
-    @Order(3)
+    @Order(4)
     @DisplayName("DBUserDAO CreateUser")
     public void addUser() {
         UserData otherUser = new UserData("anotherUser", "anotherPass", "another@gmail.com");
@@ -82,12 +82,6 @@ public class DatabaseSetupTests {
         }
     }
 
-    @Test
-    @Order(4)
-    @DisplayName("DBUserDAO add already existing user")
-    public void addAlreadyExistingUser() {
-        assertThrows(AlreadyTakenException.class, () -> dbUserDao.createUser(user));
-    }
 
     @Test
     @Order(5)
@@ -234,20 +228,11 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @DisplayName("bad list games")
+    @DisplayName("There are no games to list")
     @Order(16)
     public void listBadGames() {
-        GameData secondGame = new GameData(null,
-                "white", "black",
-                "another", new ChessGame());
-        GameData thirdGame = new GameData(null,
-                "white", "black",
-                "third", new ChessGame());
         try {
-            dbGameDao.createGame(secondGame);
-            dbGameDao.createGame(thirdGame);
-            assertNotNull(dbGameDao.listGames());
-
+            assertNull(dbGameDao.listGames());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -340,7 +325,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(23)
+    @Order(25)
     @DisplayName("update game incorrectly")
     public void updateBadGame() {
         GameData gameToUpdate = new GameData(3849204, "This is an updated username",
@@ -348,6 +333,13 @@ public class DatabaseSetupTests {
         assertThrows(DataAccessException.class, () -> dbGameDao.updateGame(gameToUpdate));
 
 
+    }
+
+    @Test
+    @Order(26)
+    @DisplayName("DBUserDAO add already existing user")
+    public void addAlreadyExistingUser() {
+        assertThrows(AlreadyTakenException.class, () -> dbUserDao.createUser(user));
     }
 
 
