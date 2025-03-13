@@ -203,20 +203,6 @@ public class DatabaseSetupTests {
         }
     }
 
-//    @Test
-//    @Order(12)
-//    @DisplayName("create bad game")
-//    public void createBadGame() {
-//        GameData gameData = new GameData(1,
-//                "imausername", "imanotherusername",
-//                "coolGame", new ChessGame());
-//        try {
-//            dbGameDao.createGame(gameData);
-//        } catch (DataAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
     @Test
     @Order(12)
     @DisplayName("get good game")
