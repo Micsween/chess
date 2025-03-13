@@ -8,12 +8,13 @@ import java.util.Collection;
 public class MemoryGameDAO implements GameDAO {
     public Collection<GameData> allGameData = new ArrayList<>();
 
-    public void createGame(GameData gameData) throws DataAccessException {
+    public GameData createGame(GameData gameData) throws DataAccessException {
         if (allGameData.contains(gameData)) {
             throw new DataAccessException("Game already exists");
         } else {
             allGameData.add(gameData);
         }
+        return gameData;
     }
 
     public GameData getGame(Integer gameID) {

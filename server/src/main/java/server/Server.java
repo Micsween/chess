@@ -17,7 +17,7 @@ import service.requests.*;
 public class Server {
 
     Gson gson = new Gson();
-    ServerDaos daos = new ServerDaos(new MemoryAuthDAO(), new MemoryUserDAO(), new MemoryGameDAO());
+    ServerDaos daos = new ServerDaos(new DBAuthDAO(), new DBUserDAO(), new DBGameDAO());
     GameService gameService = new GameService(daos);
     UserService userService = new UserService(daos);
     AuthService authService = new AuthService(daos);

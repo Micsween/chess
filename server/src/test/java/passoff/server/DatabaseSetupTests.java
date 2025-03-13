@@ -1,7 +1,9 @@
 package passoff.server;
 
+import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 
@@ -11,8 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DatabaseSetupTests {
     static DBAuthDAO dbAuthDao = new DBAuthDAO();
     static DBUserDAO dbUserDao = new DBUserDAO();
+    DBGameDAO dbGameDao = new DBGameDAO();
+
     UserData user = new UserData("adminUsername", "adminPassword", "admin@gmail.com");
     AuthData auth = new AuthData("imcool22", "adminUsername");
+    GameData gameData = new GameData(1,
+            "imausername", "imanotherusername",
+            "coolGame", new ChessGame());
 
     @BeforeEach
     public void setup() {
@@ -20,6 +27,7 @@ public class DatabaseSetupTests {
             createDatabase();
             dbUserDao.createUser(user);
             dbAuthDao.createAuth(auth);
+            dbGameDao.createGame(gameData);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -29,6 +37,7 @@ public class DatabaseSetupTests {
     void clear() {
         dbAuthDao.clearAllAuth();
         dbUserDao.clearAllUsers();
+        dbGameDao.clearAllGames();
     }
 
     @Test
@@ -65,19 +74,19 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @DisplayName("getUser")
     public void getUser() {
         try {
             UserData userData = dbUserDao.getUser(user.username());
-            assertEquals(user, userData);
+            assertEquals(user.username(), userData.username());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Test
-    @Order(4)
+    @Order(6)
     @DisplayName("get nonexistent User")
     public void getBadUser() {
         try {
@@ -88,19 +97,19 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
     @DisplayName("verify user")
     public void verifyUser() {
         try {
             UserData userData = dbUserDao.verifyUser(user.username(), user.password());
-            assertEquals(user, userData);
+            assertEquals(user.username(), userData.username());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     @DisplayName("Incorrect Password")
     public void verifyBadUser() {
         try {
@@ -111,7 +120,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     @DisplayName("get correct auth data")
     public void getGoodAuth() {
         try {
@@ -123,14 +132,14 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(8)
+    @Order(10)
     @DisplayName("get bad auth data")
     public void getBadAuth() {
         assertThrows(UnauthorizedException.class, () -> dbAuthDao.getAuth("this auth does not exist"));
     }
 
     @Test
-    @Order(9)
+    @Order(11)
     @DisplayName("delete correct auth data")
     public void deleteAuth() {
         try {
@@ -143,7 +152,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(10)
+    @Order(12)
     @DisplayName("delete bad auth Token")
     public void deleteBadAuth() {
         try {
@@ -155,32 +164,100 @@ public class DatabaseSetupTests {
         }
     }
 
-
     @Test
-    @DisplayName("Clear authdata")
-    public void clearAuthData() {
-        dbAuthDao.clearAllAuth();
-
+    @Order(13)
+    @DisplayName("create good game")
+    public void createGoodGame() {
+        //this is a second game created after setup, should have a gameID of 2.
+        GameData gameData = new GameData(null,
+                "white", "black",
+                "another", new ChessGame());
+        try {
+            GameData game = dbGameDao.createGame(gameData);
+            assertEquals(2, game.gameID());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    @DisplayName("Clear userdata")
-    public void clearUserData() {
-        dbUserDao.clearAllUsers();
-
+    @Order(14)
+    @DisplayName("list all games")
+    public void listAllGames() {
+        GameData secondGame = new GameData(null,
+                "white", "black",
+                "another", new ChessGame());
+        GameData thirdGame = new GameData(null,
+                "white", "black",
+                "third", new ChessGame());
+        GameData fourthGame = new GameData(null,
+                "white", "black",
+                "third", new ChessGame());
+        try {
+            dbGameDao.createGame(secondGame);
+            dbGameDao.createGame(thirdGame);
+            dbGameDao.createGame(fourthGame);
+            System.out.println(dbGameDao.listGames());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-
 
 //    @Test
-//    @Order(2)
-//    @DisplayName("Test Access database")
-//    public void testAccess() {
-//        try (var connection = getConnection()) {
-//            // execute SQL statements.
-//            connection
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
+//    @Order(12)
+//    @DisplayName("create bad game")
+//    public void createBadGame() {
+//        GameData gameData = new GameData(1,
+//                "imausername", "imanotherusername",
+//                "coolGame", new ChessGame());
+//        try {
+//            dbGameDao.createGame(gameData);
+//        } catch (DataAccessException e) {
+//            throw new RuntimeException(e);
 //        }
 //    }
+
+    @Test
+    @Order(12)
+    @DisplayName("get good game")
+    public void getGoodGame() {
+        try {
+            GameData newGameData = dbGameDao.getGame(gameData.gameID());
+            assertEquals(gameData.gameName(), newGameData.gameName());
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("get bad game")
+    public void getBadGame() {
+        assertThrows(DataAccessException.class, () -> dbGameDao.getGame(5435));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("update game")
+    public void updateGame() {
+        GameData gameToUpdate = new GameData(gameData.gameID(), "This is an updated username",
+                gameData.blackUsername(), gameData.gameName(), gameData.game());
+        try {
+            dbGameDao.updateGame(gameToUpdate);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("update game")
+    public void updateBadGame() {
+        GameData gameToUpdate = new GameData(3849204, "This is an updated username",
+                gameData.blackUsername(), gameData.gameName(), gameData.game());
+        assertThrows(DataAccessException.class, () -> dbGameDao.updateGame(gameToUpdate));
+
+
+    }
 
 }

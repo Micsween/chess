@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS gamedata (
     whiteUsername TEXT,
     blackUsername TEXT,
     gameName TEXT NOT NULL,
-    game JSON NOT NULL
+    game TEXT NOT NULL
 );""",
                 """
 CREATE TABLE IF NOT EXISTS userdata (
@@ -89,17 +89,8 @@ CREATE TABLE IF NOT EXISTS authdata(
 
 
     /**
-     * Create a connection to the database and sets the catalog based upon the
-     * properties specified in db.properties. Connections to the database should
-     * be short-lived, and you must close the connection when you are done with it.
-     * The easiest way to do that is with a try-with-resource block.
-     * <br/>
-     * <code>
-     * try (var conn = DbInfo.getConnection(databaseName)) {
-     * // execute SQL statements.
-     * }
-     * </code>
-     */
+     * I decided to use connection pooling instead :)
+     **/
     public static Connection getConnection() throws DataAccessException {
         try {
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);

@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface GameDAO {
     //define all the methods (actions that game can do)
 
-    void createGame(GameData gameData) throws DataAccessException;
+    GameData createGame(GameData gameData) throws DataAccessException;
 
     /**
      * Retrieves GameData
