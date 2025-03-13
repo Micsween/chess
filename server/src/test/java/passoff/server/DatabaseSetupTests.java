@@ -113,7 +113,7 @@ public class DatabaseSetupTests {
     @DisplayName("Incorrect Password")
     public void verifyBadUser() {
         try {
-            assertNull(dbUserDao.verifyUser(user.username(), "this is a bad password"));
+            assertThrows(DataAccessException.class, () -> dbUserDao.verifyUser(user.username(), "this is a bad password"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
