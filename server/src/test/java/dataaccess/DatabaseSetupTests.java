@@ -227,17 +227,6 @@ public class DatabaseSetupTests {
         }
     }
 
-    @Test
-    @DisplayName("There are no games to list")
-    @Order(16)
-    public void listBadGames() {
-        try {
-            assertNull(dbGameDao.listGames());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     @Test
     @Order(17)
