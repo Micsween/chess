@@ -34,10 +34,8 @@ public class DBGameDAO implements GameDAO {
             }
             return new GameData(gameId, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
 
-        } catch (Exception e) {
-            System.err.println(e);
-            //throw new DataAccessException("Game already exists.");
-            return null;
+        } catch (SQLException ex) {
+            throw new DataAccessException("Something was wrong with your request to create a game.");
         }
     }
 
@@ -108,7 +106,7 @@ public class DBGameDAO implements GameDAO {
             pstmt.executeUpdate();
 
         } catch (Exception e) {
-            System.err.println(e);
+            throw new DataAccessException("Something went wrong with your request to update a game.");
         }
     }
 

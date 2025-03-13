@@ -52,6 +52,11 @@ public class DatabaseSetupTests {
     @DisplayName("DBAuthDAO CreateAuth")
     public void createAuth() {
         dbAuthDao.createAuth(auth);
+        try {
+            assertNotNull(dbAuthDao.getAuth(auth.authToken()));
+        } catch (UnauthorizedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -61,7 +66,8 @@ public class DatabaseSetupTests {
         UserData otherUser = new UserData("anotherUser", "anotherPass", "another@gmail.com");
         try {
             dbUserDao.createUser(otherUser);
-        } catch (AlreadyTakenException e) {
+            assertNotNull(dbUserDao.getUser(otherUser.username()));
+        } catch (AlreadyTakenException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -181,6 +187,19 @@ public class DatabaseSetupTests {
     }
 
     @Test
+    @Order(13)
+    @DisplayName("create game with no gameName")
+    public void createBadGame() {
+        //this is a second game created after setup, should have a gameID of 2.
+        GameData gameData = new GameData(null,
+                "white", "black",
+                null, new ChessGame());
+
+        assertThrows(Exception.class, () -> dbGameDao.createGame(gameData));
+
+    }
+
+    @Test
     @Order(14)
     @DisplayName("list all games")
     public void listAllGames() {
@@ -197,7 +216,8 @@ public class DatabaseSetupTests {
             dbGameDao.createGame(secondGame);
             dbGameDao.createGame(thirdGame);
             dbGameDao.createGame(fourthGame);
-            System.out.println(dbGameDao.listGames());
+            assertNotNull(dbGameDao.listGames());
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -222,6 +242,23 @@ public class DatabaseSetupTests {
         assertThrows(DataAccessException.class, () -> dbGameDao.getGame(5435));
     }
 
+
+    @Test
+    @Order(15)
+    @DisplayName("join Game ")
+    public void joinGoodGame() {
+        GameData game = new GameData(null, null,
+                null, gameData.gameName(), gameData.game());
+        try {
+            GameData newGameData = dbGameDao.createGame(game);
+            dbGameDao.joinGame("potato", "WHITE", newGameData.gameID());
+            assertNotEquals(gameData, dbGameDao.getGame(newGameData.gameID()));
+        } catch (DataAccessException | AlreadyTakenException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     @Test
     @Order(14)
     @DisplayName("update game")
@@ -230,6 +267,7 @@ public class DatabaseSetupTests {
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
         try {
             dbGameDao.updateGame(gameToUpdate);
+            assertNotEquals(gameData, dbGameDao.getGame(gameToUpdate.gameID()));
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
