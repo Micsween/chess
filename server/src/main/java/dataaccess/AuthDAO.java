@@ -6,7 +6,7 @@ public interface AuthDAO {
     /**
      * creates a new authorization given AuthData
      */
-    void createAuth(AuthData authData); //authData service will PROVIDE authToken
+    void createAuth(AuthData authData) throws DataAccessException; //authData service will PROVIDE authToken
 
     /**
      * @return AuthData if there exists an authorization for the given authToken.

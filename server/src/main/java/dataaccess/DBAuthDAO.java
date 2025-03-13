@@ -2,11 +2,12 @@ package dataaccess;
 
 import model.AuthData;
 
+import javax.xml.crypto.Data;
 import java.sql.PreparedStatement;
 
 public class DBAuthDAO implements AuthDAO {
 
-    public void createAuth(AuthData authData) {
+    public void createAuth(AuthData authData) throws DataAccessException {
         String sql = "INSERT INTO authdata (authToken, username) VALUES (?, ?)";
 
         try (var conn = DatabaseManager.getConnection();
@@ -17,7 +18,7 @@ public class DBAuthDAO implements AuthDAO {
             pstmt.executeUpdate();
 
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            throw new DataAccessException("Message: " + e.getMessage());
         }
     }
 

@@ -51,13 +51,23 @@ public class DatabaseSetupTests {
     @Order(2)
     @DisplayName("DBAuthDAO CreateAuth")
     public void createAuth() {
-        dbAuthDao.createAuth(auth);
+
         try {
+            dbAuthDao.createAuth(auth);
             assertNotNull(dbAuthDao.getAuth(auth.authToken()));
-        } catch (UnauthorizedException e) {
+        } catch (UnauthorizedException | DataAccessException e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    @Order(2)
+    @DisplayName("try to create auth but its bad CreateAuth")
+    public void createBadAuth() {
+        assertThrows(Exception.class, () -> dbAuthDao.createAuth(null));
+
+    }
+
 
     @Test
     @Order(3)
@@ -187,7 +197,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     @DisplayName("create game with no gameName")
     public void createBadGame() {
         //this is a second game created after setup, should have a gameID of 2.
@@ -200,7 +210,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(14)
+    @Order(15)
     @DisplayName("list all games")
     public void listAllGames() {
         GameData secondGame = new GameData(null,
@@ -224,7 +234,28 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(12)
+    @DisplayName("bad list games")
+    @Order(16)
+    public void listBadGames() {
+        GameData secondGame = new GameData(null,
+                "white", "black",
+                "another", new ChessGame());
+        GameData thirdGame = new GameData(null,
+                "white", "black",
+                "third", new ChessGame());
+        try {
+            dbGameDao.createGame(secondGame);
+            dbGameDao.createGame(thirdGame);
+            assertNotNull(dbGameDao.listGames());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Test
+    @Order(17)
     @DisplayName("get good game")
     public void getGoodGame() {
         try {
@@ -236,7 +267,7 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(13)
+    @Order(18)
     @DisplayName("get bad game")
     public void getBadGame() {
         assertThrows(DataAccessException.class, () -> dbGameDao.getGame(5435));
@@ -244,7 +275,7 @@ public class DatabaseSetupTests {
 
 
     @Test
-    @Order(15)
+    @Order(19)
     @DisplayName("join Game ")
     public void joinGoodGame() {
         GameData game = new GameData(null, null,
@@ -258,9 +289,23 @@ public class DatabaseSetupTests {
         }
     }
 
+    @Test
+    @Order(20)
+    @DisplayName("join Game ")
+    public void joinBadGame() {
+        GameData game = new GameData(null, "TakenUsername",
+                null, gameData.gameName(), gameData.game());
+        try {
+            GameData newGameData = dbGameDao.createGame(game);
+            assertThrows(Exception.class, () -> dbGameDao.joinGame("potato", "WHITE", newGameData.gameID()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Test
-    @Order(14)
+    @Order(21)
     @DisplayName("update game")
     public void updateGame() {
         GameData gameToUpdate = new GameData(gameData.gameID(), "This is an updated username",
@@ -274,8 +319,29 @@ public class DatabaseSetupTests {
     }
 
     @Test
-    @Order(15)
-    @DisplayName("update game")
+    @Order(22)
+    @DisplayName("Test Clear Game")
+    public void clearGame() {
+        dbGameDao.clearAllGames();
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("Test Clear Users")
+    public void clearUsers() {
+        dbUserDao.clearAllUsers();
+    }
+
+    @Test
+    @Order(24)
+    @DisplayName("Test Clear Auth")
+    public void clearAuth() {
+        dbAuthDao.clearAllAuth();
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("update game incorrectly")
     public void updateBadGame() {
         GameData gameToUpdate = new GameData(3849204, "This is an updated username",
                 gameData.blackUsername(), gameData.gameName(), gameData.game());
@@ -283,5 +349,6 @@ public class DatabaseSetupTests {
 
 
     }
+
 
 }

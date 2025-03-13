@@ -33,6 +33,8 @@ public class UserService {
             return new RegisterResponse(authData.authToken(), authData.username());
         } catch (AlreadyTakenException e) {
             throw new ServiceException(403, e.getMessage());
+        } catch (DataAccessException e) {
+            throw new ServiceException(401, e.getMessage());
         }
     }
 
