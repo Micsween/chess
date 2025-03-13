@@ -12,7 +12,6 @@ public class GameService {
     ServerDaos serverDaos;
     AuthDAO authDao;
     GameDAO gameDao;
-    static Integer gameId = 1;
 
     public GameService(ServerDaos serverDaos) {
         this.serverDaos = serverDaos;
@@ -20,9 +19,6 @@ public class GameService {
         this.gameDao = serverDaos.gameDao();
     }
 
-    private Integer createGameID() {
-        return gameId++;
-    }
 
     public CreateGameResponse createGame(CreateGameRequest request) throws ServiceException {
         if (request.gameName() == null) {
@@ -34,10 +30,9 @@ public class GameService {
             throw new ServiceException(401, e.getMessage());
         }
         try {
-            Integer gameID = createGameID();
-            GameData game = new GameData(gameID, null, null, request.gameName(), new ChessGame());
-            gameDao.createGame(game);
-            return new CreateGameResponse(gameID);
+            GameData game = new GameData(null, null, null, request.gameName(), new ChessGame());
+            GameData createdGame = gameDao.createGame(game);
+            return new CreateGameResponse(createdGame.gameID());
         } catch (DataAccessException e) {
             throw new ServiceException(400, "Error: bad request");
         }

@@ -51,16 +51,17 @@ public class DBUserDAO implements UserDAO {
     @Override
     public UserData verifyUser(String username, String password) throws DataAccessException {
         UserData userData = getUser(username);
-        return (BCrypt.checkpw(password, userData.password())) ? userData : null;
-
+        if (BCrypt.checkpw(password, userData.password())) {
+            return userData;
+        } else {
+            throw new DataAccessException("Invalid username or password");
+        }
     }
 
     @Override
     public void clearAllUsers() {
         try (var conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("""
-                      DELETE FROM userdata;
-                     """)) {
+             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM userdata;")) {
             pstmt.executeUpdate();
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
