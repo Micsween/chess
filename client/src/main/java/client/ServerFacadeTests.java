@@ -7,7 +7,7 @@ import server.Server;
 
 
 class ServerFacadeTests {
-    ServerFacade serverFacade;
+    static ServerFacade serverFacade;
     private static Server server;
 
     @BeforeAll
@@ -15,10 +15,12 @@ class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        serverFacade = new ServerFacade("localhost", Integer.toString(port));
     }
 
     @BeforeEach
     void setUp() {
+
     }
 
     @Test
@@ -47,5 +49,6 @@ class ServerFacadeTests {
 
     @Test
     void clear() {
+        serverFacade.clear();
     }
 }
