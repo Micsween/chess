@@ -1,11 +1,13 @@
 package client;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import server.Server;
-/*AAAAAAAAAAAAAAAAAAH*/
 
-public class ServerFacadeTests {
 
+class ServerFacadeTests {
+    ServerFacade serverFacade;
     private static Server server;
 
     @BeforeAll
@@ -15,15 +17,35 @@ public class ServerFacadeTests {
         System.out.println("Started test HTTP server on " + port);
     }
 
-    @AfterAll
-    static void stopServer() {
-        server.stop();
+    @BeforeEach
+    void setUp() {
     }
-
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    void register() {
     }
 
+    @Test
+    void login() {
+    }
+
+    @Test
+    void logout() {
+    }
+
+    @Test
+    void listGames() {
+    }
+
+    @Test
+    void createGame() {
+    }
+
+    @Test
+    void joinPlayer() {
+    }
+
+    @Test
+    void clear() {
+    }
 }

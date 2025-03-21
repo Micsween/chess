@@ -1,6 +1,8 @@
+package client;
+
 import com.google.gson.Gson;
 import model.UserData;
-
+import service.responses.ClearResponse;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,23 +14,12 @@ import java.net.URISyntaxException;
 
 public class ServerFacade {
     Gson gson = new Gson();
+    String url;
 
     //            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     public ServerFacade(String host, String port) {
-        try {
-            URI uri = new URI("http://localhost:8080/name");
-            HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
 
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        //this.url = new URL("http://" + host + ":" + port);
+        this.url = "http://" + host + ":" + port;
     }
 
 
@@ -52,11 +43,12 @@ public class ServerFacade {
     }
 
     public void clear() {
+        this.send("/db", "DELETE", null, ClearResponse.class);
     }
 
     public <T> T send(String path, String method, Object body, Class<T> responseType) {
         try {
-            URI uri = new URI("http://localhost:8080" + path);
+            URI uri = new URI(url + path);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
 
             http.setRequestMethod(method);
