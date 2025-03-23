@@ -2,10 +2,17 @@ package client;
 
 import com.google.gson.Gson;
 import model.UserData;
+import service.requests.LoginRequest;
+import service.requests.LogoutRequest;
+import service.requests.RegisterRequest;
 import service.responses.ClearResponse;
+import service.responses.LoginResponse;
+import service.responses.LogoutResponse;
+import service.responses.RegisterResponse;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -23,14 +30,20 @@ public class ServerFacade {
     }
 
 
-    public void register(UserData userData) {
+    public RegisterResponse register(UserData userData) {
         //passes userData and register url to the web client
+        RegisterRequest registerRequest = new RegisterRequest(userData.username(), userData.password(), userData.email());
+        return send("/user", "POST", registerRequest, RegisterResponse.class, null);
     }
 
-    public void login(UserData userData) {
+    public LoginResponse login(UserData userData) {
+        LoginRequest loginRequest = new LoginRequest(userData.username(), userData.password());
+        return send("/session", "POST", loginRequest, LoginResponse.class, null);
     }
 
     public void logout(String authToken) {
+        LogoutRequest logoutRequest = new LogoutRequest(authToken);
+        send("/session", "DELETE", logoutRequest, LogoutResponse.class, authToken);
     }
 
     public void listGames(String authToken) {
@@ -43,19 +56,28 @@ public class ServerFacade {
     }
 
     public void clear() {
-        this.send("/db", "DELETE", null, ClearResponse.class);
+        this.send("/db", "DELETE", null, ClearResponse.class, null);
     }
 
-    public <T> T send(String path, String method, Object body, Class<T> responseType) {
+    //add functionality where send throws an error intead of printing to the console if something happens
+    public <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) {
         try {
             URI uri = new URI(url + path);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
 
             http.setRequestMethod(method);
+            if (authKey != null) {
+                http.setRequestProperty("authorization", authKey);
+            }
             if (body != null) {
                 http.setDoOutput(true);
-                http.getOutputStream().write(body.toString().getBytes());
+                http.setRequestProperty("Content-Type", "application/json");
+                String jsonBody = gson.toJson(body);
+                OutputStream outputStream = http.getOutputStream();
+                outputStream.write(jsonBody.getBytes());
+                outputStream.close();
             }
+
             http.connect();
 
             var inputStream = http.getInputStream();
@@ -72,6 +94,7 @@ public class ServerFacade {
     }
 
     public <T> T send(String path, String method, Class<T> responseType) {
-        return this.send(path, method, null, responseType);
+        return this.send(path, method, null, responseType, null);
     }
+
 }
