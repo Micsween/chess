@@ -37,12 +37,11 @@ class ServerFacadeTests {
         RegisterResponse register = serverFacade.register(userData);
     }
 
-//    @Test
-//    @Order(2)
-//    void registerDuplicate() {
-//        UserData userData = new UserData("test-user", null, "test-email");
-//        //assertThrows(Exception.class, () -> serverFacade.register(userData));
-//    }
+    @Test
+    void registerDuplicate() {
+        RegisterResponse register = serverFacade.register(userData);
+        assertThrows(ClientException.class, () -> serverFacade.register(userData));
+    }
 
 
     @Test
@@ -52,9 +51,14 @@ class ServerFacadeTests {
         assertDoesNotThrow(() -> serverFacade.login(userData));
     }
 
+    @Test
+    @DisplayName("Login Incorrect Password")
+    void loginIncorrectPassword() {
+        serverFacade.register(userData);
+        assertThrows(ClientException.class, () -> serverFacade.login(new UserData("test-user", "bad-password", "test-email")));
+    }
 
     @Test
-    @Order(2)
     @DisplayName("Logout")
     void logout() {
         RegisterResponse registerResponse = serverFacade.register(userData);
@@ -62,12 +66,28 @@ class ServerFacadeTests {
         assertDoesNotThrow(() -> serverFacade.logout(authToken));
     }
 
+    @Test
+    @DisplayName("Logout incorrect authToken")
+    void logoutIncorrectAuthToken() {
+        serverFacade.register(userData);
+        assertThrows(ClientException.class, () -> serverFacade.logout("bad auth token"));
+    }
+
 
     @Test
+    @DisplayName("List Games")
     void listGames() {
         RegisterResponse registerResponse = serverFacade.register(userData);
         String authToken = registerResponse.authToken();
         ListGamesResponse listGamesResponse = serverFacade.listGames(authToken);
+        assertNotNull(listGamesResponse);
+    }
+
+    @Test
+    @DisplayName("List Games bad auth")
+    void listGamesBadAuth() {
+        serverFacade.register(userData);
+        ListGamesResponse listGamesResponse = serverFacade.listGames("bad auth token");
         assertNotNull(listGamesResponse);
     }
 
@@ -80,6 +100,13 @@ class ServerFacadeTests {
     }
 
     @Test
+    @DisplayName("Bad Game")
+    void createBadGame() {
+        assertThrows(ClientException.class, () -> serverFacade.createGame("GAME!", "bad auth token"));
+    }
+
+    @Test
+    @DisplayName("Join player")
     void joinPlayer() {
         RegisterResponse registerResponse = serverFacade.register(userData);
         CreateGameResponse createGameResponse = serverFacade.createGame("GAME!", registerResponse.authToken());
@@ -88,6 +115,18 @@ class ServerFacadeTests {
         ListGamesResponse listGamesResponse = serverFacade.listGames(registerResponse.authToken());
         assertNotNull(listGamesResponse);//add a command that gets a game
     }
+
+    @Test
+    @DisplayName("Join player color already taken")
+    void joinPlayerColorAlreadyTaken() {
+        RegisterResponse registerResponse = serverFacade.register(userData);
+        CreateGameResponse createGameResponse = serverFacade.createGame("GAME!", registerResponse.authToken());
+
+        serverFacade.joinPlayer(registerResponse.authToken(), "WHITE", createGameResponse.gameID());
+        ListGamesResponse listGamesResponse = serverFacade.listGames(registerResponse.authToken());
+        assertNotNull(listGamesResponse);//add a command that gets a game
+    }
+
 
     @Test
     void clear() {
