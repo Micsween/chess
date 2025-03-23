@@ -3,17 +3,15 @@ package client;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import service.responses.LoginResponse;
-import service.responses.RegisterResponse;
+import service.responses.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ServerFacadeTests {
     static ServerFacade serverFacade;
     private static Server server;
-    String authToken;
+    UserData userData = new UserData("test-user", "test-pass", "test-email");
 
     @BeforeAll
     public static void init() {
@@ -28,19 +26,15 @@ class ServerFacadeTests {
 
     }
 
-    @AfterAll
-    static void finish() {
+    @AfterEach
+    void finish() {
         serverFacade.clear();
     }
 
     @Test
-    @Order(1)
     @DisplayName("Register")
     void register() {
-        UserData userData = new UserData("test-user", "test-pass", "test-email");
         RegisterResponse register = serverFacade.register(userData);
-        this.authToken = register.authToken();
-
     }
 
 //    @Test
@@ -50,40 +44,49 @@ class ServerFacadeTests {
 //        //assertThrows(Exception.class, () -> serverFacade.register(userData));
 //    }
 
-    @Test
-    @Order(2)
-    @DisplayName("Logout")
-    void logout() {
-        UserData userData = new UserData("test-user", "test-pass", null);
-        assertDoesNotThrow(() -> {
-            serverFacade.login(userData);
-            LoginResponse login = serverFacade.login(userData);
-            this.authToken = login.authToken();
-        });
-        assertDoesNotThrow(() -> serverFacade.logout(authToken));
-
-
-    }
 
     @Test
-    @Order(3)
     @DisplayName("Login")
     void login() {
-        UserData userData = new UserData("test-user", "test-pass", null);
+        serverFacade.register(userData);
         assertDoesNotThrow(() -> serverFacade.login(userData));
     }
 
 
     @Test
-    void listGames() {
+    @Order(2)
+    @DisplayName("Logout")
+    void logout() {
+        RegisterResponse registerResponse = serverFacade.register(userData);
+        String authToken = registerResponse.authToken();
+        assertDoesNotThrow(() -> serverFacade.logout(authToken));
     }
+
+
+    @Test
+    void listGames() {
+        RegisterResponse registerResponse = serverFacade.register(userData);
+        String authToken = registerResponse.authToken();
+        ListGamesResponse listGamesResponse = serverFacade.listGames(authToken);
+        assertNotNull(listGamesResponse);
+    }
+
 
     @Test
     void createGame() {
+        RegisterResponse registerResponse = serverFacade.register(userData);
+        CreateGameResponse createGameResponse = serverFacade.createGame("GAME!", registerResponse.authToken());
+        assertNotNull(createGameResponse);
     }
 
     @Test
     void joinPlayer() {
+        RegisterResponse registerResponse = serverFacade.register(userData);
+        CreateGameResponse createGameResponse = serverFacade.createGame("GAME!", registerResponse.authToken());
+
+        serverFacade.joinPlayer(registerResponse.authToken(), "WHITE", createGameResponse.gameID());
+        ListGamesResponse listGamesResponse = serverFacade.listGames(registerResponse.authToken());
+        assertNotNull(listGamesResponse);//add a command that gets a game
     }
 
     @Test
