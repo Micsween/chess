@@ -46,6 +46,8 @@ public class ServerFacade {
     }
 
     public CreateGameResponse createGame(String gameName, String authToken) {
+        CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
+        return send("/game", "POST", createGameRequest, CreateGameResponse.class, authToken);
     }
 
     public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {
