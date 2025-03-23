@@ -2,13 +2,8 @@ package client;
 
 import com.google.gson.Gson;
 import model.UserData;
-import service.requests.LoginRequest;
-import service.requests.LogoutRequest;
-import service.requests.RegisterRequest;
-import service.responses.ClearResponse;
-import service.responses.LoginResponse;
-import service.responses.LogoutResponse;
-import service.responses.RegisterResponse;
+import service.requests.*;
+import service.responses.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,21 +41,22 @@ public class ServerFacade {
         send("/session", "DELETE", logoutRequest, LogoutResponse.class, authToken);
     }
 
-    public void listGames(String authToken) {
+    public ListGamesResponse listGames(String authToken) {
+        return send("/game", "GET", null, ListGamesResponse.class, authToken);
     }
 
-    public void createGame(String gameName, String authToken) {
+    public CreateGameResponse createGame(String gameName, String authToken) {
     }
 
-    public void joinPlayer(String authToken, String username, String playerColor, Integer gameID) {
+    public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {
     }
 
     public void clear() {
-        this.send("/db", "DELETE", null, ClearResponse.class, null);
+        this.send("/db", "DELETE", ClearResponse.class);
     }
 
     //add functionality where send throws an error intead of printing to the console if something happens
-    public <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) {
+    public <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) throws ClientException {
         try {
             URI uri = new URI(url + path);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
@@ -87,13 +83,12 @@ public class ServerFacade {
         } catch (URISyntaxException | MalformedURLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
-            System.err.println("There was an issue with opening a connection: " + e.getMessage());
+            throw new ClientException(e.getMessage());
         }
-        return null;
 
     }
 
-    public <T> T send(String path, String method, Class<T> responseType) {
+    public <T> T send(String path, String method, Class<T> responseType) throws ClientException {
         return this.send(path, method, null, responseType, null);
     }
 
