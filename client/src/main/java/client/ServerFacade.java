@@ -28,12 +28,12 @@ public class ServerFacade {
     public RegisterResponse register(UserData userData) {
         //passes userData and register url to the web client
         RegisterRequest registerRequest = new RegisterRequest(userData.username(), userData.password(), userData.email());
-        return send("/user", "POST", registerRequest, RegisterResponse.class);
+        return send("/user", "POST", registerRequest, RegisterResponse.class, null);
     }
 
     public LoginResponse login(UserData userData) {
         LoginRequest loginRequest = new LoginRequest(userData.username(), userData.password());
-        return send("/session", "POST", loginRequest, LoginResponse.class);
+        return send("/session", "POST", loginRequest, LoginResponse.class, null);
     }
 
     public void logout(String authToken) {
@@ -91,11 +91,6 @@ public class ServerFacade {
             throw new ClientException(e.getMessage());
         }
 
-    }
-
-
-    private <T> T send(String path, String method, Object body, Class<T> responseType) throws ClientException {
-        return this.send(path, method, body, responseType, null);
     }
 
 
