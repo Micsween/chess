@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import model.UserData;
+import server.Server;
 import service.requests.*;
 import service.responses.*;
 
@@ -46,8 +47,9 @@ public class ServerFacade {
     }
 
     public CreateGameResponse createGame(String gameName, String authToken) {
-        CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
-        return send("/game", "POST", createGameRequest, CreateGameResponse.class, authToken);
+        //CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
+        Server.GameNameRequest gameNameRequest = new Server.GameNameRequest(gameName);
+        return send("/game", "POST", gameNameRequest, CreateGameResponse.class, authToken);
     }
 
     public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {

@@ -94,7 +94,8 @@ class ServerFacadeTests {
     @Test
     void createGame() {
         RegisterResponse registerResponse = serverFacade.register(userData);
-        CreateGameResponse createGameResponse = serverFacade.createGame("GAME!", registerResponse.authToken());
+        CreateGameResponse createGameResponse = serverFacade.createGame("GAME", registerResponse.authToken());
+        System.out.println(createGameResponse);
         assertNotNull(createGameResponse);
     }
 
