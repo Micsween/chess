@@ -28,12 +28,12 @@ public class ServerFacade {
     public RegisterResponse register(UserData userData) {
         //passes userData and register url to the web client
         RegisterRequest registerRequest = new RegisterRequest(userData.username(), userData.password(), userData.email());
-        return send("/user", "POST", registerRequest, RegisterResponse.class, null);
+        return send("/user", "POST", registerRequest, RegisterResponse.class);
     }
 
     public LoginResponse login(UserData userData) {
         LoginRequest loginRequest = new LoginRequest(userData.username(), userData.password());
-        return send("/session", "POST", loginRequest, LoginResponse.class, null);
+        return send("/session", "POST", loginRequest, LoginResponse.class);
     }
 
     public void logout(String authToken) {
@@ -49,18 +49,19 @@ public class ServerFacade {
         CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
         return send("/game", "POST", createGameRequest, CreateGameResponse.class, authToken);
     }
-    
+
     public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {
         JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, playerColor, gameID);
         return send("/game", "PUT", joinGameRequest, JoinGameResponse.class, joinGameRequest.authToken());
     }
 
     public void clear() {
-        this.send("/db", "DELETE", ClearResponse.class);
+        this.send("/db", "DELETE", null, ClearResponse.class, null);
     }
 
+
     //add functionality where send throws an error intead of printing to the console if something happens
-    public <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) throws ClientException {
+    private <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) throws ClientException {
         try {
             URI uri = new URI(url + path);
             HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
@@ -92,8 +93,10 @@ public class ServerFacade {
 
     }
 
-    public <T> T send(String path, String method, Class<T> responseType) throws ClientException {
-        return this.send(path, method, null, responseType, null);
+
+    private <T> T send(String path, String method, Object body, Class<T> responseType) throws ClientException {
+        return this.send(path, method, body, responseType, null);
     }
+
 
 }

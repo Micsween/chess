@@ -87,8 +87,7 @@ class ServerFacadeTests {
     @DisplayName("List Games bad auth")
     void listGamesBadAuth() {
         serverFacade.register(userData);
-        ListGamesResponse listGamesResponse = serverFacade.listGames("bad auth token");
-        assertNotNull(listGamesResponse);
+        assertThrows(ClientException.class, () -> serverFacade.listGames("bad auth token"));
     }
 
 
@@ -123,8 +122,7 @@ class ServerFacadeTests {
         CreateGameResponse createGameResponse = serverFacade.createGame("GAME!", registerResponse.authToken());
 
         serverFacade.joinPlayer(registerResponse.authToken(), "WHITE", createGameResponse.gameID());
-        ListGamesResponse listGamesResponse = serverFacade.listGames(registerResponse.authToken());
-        assertNotNull(listGamesResponse);//add a command that gets a game
+        assertThrows(ClientException.class, () -> serverFacade.joinPlayer(registerResponse.authToken(), "WHITE", createGameResponse.gameID()));
     }
 
 
