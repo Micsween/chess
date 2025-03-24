@@ -1,18 +1,26 @@
 package ui;
 
 import chess.*;
+import client.ClientException;
 import client.ServerFacade;
+import model.UserData;
+import server.Server;
+import service.responses.RegisterResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
-    ServerFacade facade;
+    static ServerFacade serverFacade;
+    static Server server;
+    static String username;
 
     public static void main(String[] args) {
-        var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
+        server = new Server();
+        var port = server.run(0);
+        System.out.println("Started test HTTP server on " + port);
+        serverFacade = new ServerFacade("localhost", Integer.toString(port));
+
+
         //here is where you add helper functions
         //take an input
         while (true) {
@@ -22,12 +30,16 @@ public class Main {
             if (line.equals("help")) {
                 preLogin();
                 //await new input
+                if (username != null) {
+                    postLogin();
+                }
                 break;
             }
         }
 
 
     }
+
 
     enum preLoginCommands {
         register,
@@ -44,11 +56,9 @@ public class Main {
     );
 
     static String printCommandUI() {
-        Set<String> keySet = commandParamMap.keySet();
         StringBuilder consoleUIBuilder = new StringBuilder();
         for (preLoginCommands key : preLoginCommands.values()) {
             consoleUIBuilder.append(key);
-            // + " " + "<" + commandParamMap.get(key) + ">" + "\n")
             for (String param : commandParamMap.get(key.toString())) {
                 consoleUIBuilder.append(" <").append(param).append("> ");
             }
@@ -57,17 +67,53 @@ public class Main {
         return consoleUIBuilder.toString();
     }
 
+
     static void preLogin() {
         System.out.println(printCommandUI());
         Scanner scanner = new Scanner(System.in);
-        String command = scanner.nextLine();
+        String input = scanner.nextLine();
+        String[] params = input.split(" ");
+        String command = params[0];
+
         switch (command) {
             case "register":
+                if (params.length != 4) {
+                    System.out.println("\n Please provide all fields. \n");
+                    preLogin();
+                } else {
+                    try {
+                        RegisterResponse registerResponse = serverFacade.register(new UserData(params[1], params[2], params[3]));
+                        username = registerResponse.username();
+                    } catch (ClientException e) {
+                        System.out.println("This user already exists, please try again.");
+                        preLogin();
+                    }
+                }
                 break;
             case "login":
-
+                if (params.length != 3) {
+                    System.out.println("\n Please provide all fields. \n");
+                    preLogin();
+                } else {
+                    try {
+                        serverFacade.login(new UserData(params[1], params[2], null));
+                    } catch (ClientException e) {
+                        System.out.println("Your username or password was incorrect. Please try again.");
+                        preLogin();
+                    }
+                }
+                break;
+            case "quit":
+                return;
+            case "help":
+                preLogin();
+                break;
         }
 
+    }
+
+    static void postLogin() {
+        System.out.println(printCommandUI());
     }
     //prelogin function >> just awaits input
     //register handler
