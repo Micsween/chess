@@ -59,8 +59,6 @@ public class ServerFacade {
         this.send("/db", "DELETE", null, ClearResponse.class, null);
     }
 
-
-    //add functionality where send throws an error intead of printing to the console if something happens
     private <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) throws ClientException {
         try {
             URI uri = new URI(url + path);
