@@ -163,6 +163,7 @@ public class Main {
                     System.out.println(Integer.parseInt(params[0]));
                     serverFacade.joinPlayer(authToken, params[1], Integer.parseInt(params[0]));
                     //switch to gameplayUI
+                    gameplayUI();
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
@@ -218,6 +219,13 @@ public class Main {
         return consoleUIBuilder.toString();
     }
 
+    static void gameplayUI() {
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+        System.out.printf("This is hopefully a line of background color light gray...");
+        //if white perspective: a1 is the bottom left corner
+        //if black perspective a1 is top right corner
+
+    }
     //prelogin function >> just awaits input
     //register handler
     //login handler
