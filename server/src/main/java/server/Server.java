@@ -99,7 +99,6 @@ public class Server {
 
         put("/game", (request, response) -> {
             try {
-                request.headers("authorization"); //gets AuthKey
                 JoinGameBody joinGameBody = gson.fromJson(request.body(), JoinGameBody.class);
                 JoinGameRequest joinGameRequest = new JoinGameRequest(request.headers("authorization"),
                         joinGameBody.playerColor(), joinGameBody.gameID());

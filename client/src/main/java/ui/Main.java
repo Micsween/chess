@@ -103,6 +103,7 @@ public class Main {
                     preLogin();
                 } else {
                     try {
+                        //bug where even if password is incorrect it still logs in
                         LoginResponse loginResponse = serverFacade.login(new UserData(params[0], inputs[1], null));
                         username = loginResponse.username();
                         authToken = loginResponse.authToken();
@@ -121,9 +122,6 @@ public class Main {
 
     }
 
-    //	Lists all the games that currently exist on the server.
-    //	Calls the server list API to get all the game data, and
-    //	displays the games in a numbered list, including the game name and players (not observers) in the game.
     static void postLogin() {
         System.out.println(printPostCommandUI());
         Scanner scanner = new Scanner(System.in);
@@ -146,24 +144,37 @@ public class Main {
                 try {
                     ListGamesResponse listGamesResponse = serverFacade.listGames(authToken);
                     //, and displays the games in a numbered list, including the game name and players (not observers) in the game
+                    int i = 1;
                     for (GameData game : listGamesResponse.games()) {
-                        System.out.println(listGamesResponse.games());
-
+                        System.out.print(i + ". ");
+                        System.out.print("Game name: " + game.gameName() + " | ");
+                        System.out.println("Players: " + ((game.blackUsername() == null) ? " " : game.blackUsername()) + " "
+                                + ((game.whiteUsername() == null) ? " " : game.whiteUsername()));
+                        i++;
                     }
-                    System.out.println(listGamesResponse.games());
+                    postLogin();
                 } catch (ClientException e) {
                     System.out.println("You are not authenticated.");
                     preLogin();
                 }
                 break;
             case "join":
+                try {
+                    System.out.println(Integer.parseInt(params[0]));
+                    serverFacade.joinPlayer(authToken, params[1], Integer.parseInt(params[0]));
+                    //switch to gameplayUI
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
                 break;
             case "observe":
+                //switch to the gameplay UI
                 break;
             case "logout":
-                if (params.length != postLoginCommandParamMap.get(command).length) {
-                    System.out.println("\n Please provide all fields. \n");
-                }
+                serverFacade.logout(authToken);
+                username = null;
+                authToken = null;
+                preLogin();
                 break;
             case "quit":
                 return;

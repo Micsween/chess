@@ -53,8 +53,8 @@ public class ServerFacade {
     }
 
     public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {
-        JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, playerColor, gameID);
-        return send("/game", "PUT", joinGameRequest, JoinGameResponse.class, joinGameRequest.authToken());
+        Server.JoinGameBody joinGameBody = new Server.JoinGameBody(playerColor, gameID);
+        return send("/game", "PUT", joinGameBody, JoinGameResponse.class, authToken);
     }
 
     public void clear() {
