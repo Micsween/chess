@@ -6,13 +6,13 @@ import static spark.Spark.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import dataaccess.*;
+import model.requests.*;
+import model.responses.*;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.Response;
 import spark.Spark;
-import service.responses.*;
-import service.requests.*;
 
 public class Server {
 

@@ -5,25 +5,23 @@ import client.ClientException;
 import client.ServerFacade;
 import model.GameData;
 import model.UserData;
-import server.Server;
-import service.responses.ListGamesResponse;
-import service.responses.LoginResponse;
-import service.responses.RegisterResponse;
+import model.responses.ListGamesResponse;
+import model.responses.LoginResponse;
+import model.responses.RegisterResponse;
 
 import java.util.*;
 
+
 public class Main {
     static ServerFacade serverFacade;
-    static Server server;
+    //private static Server server;
     static String username;
     static String authToken;
     static Boolean quit = false;
 
     public static void main(String[] args) {
-        server = new Server();
-        var port = server.run(0);
-        System.out.println("Started test HTTP server on " + port);
-        serverFacade = new ServerFacade("localhost", Integer.toString(port));
+
+        serverFacade = new ServerFacade("localhost", "8080");
 
         while (true) {
             System.out.println("Welcome to CS ♕ 240 Chess. Type 'help' to get started.");

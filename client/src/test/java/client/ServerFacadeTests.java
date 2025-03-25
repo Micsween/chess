@@ -1,9 +1,11 @@
 package client;
 
 import model.UserData;
+import model.responses.CreateGameResponse;
+import model.responses.ListGamesResponse;
+import model.responses.RegisterResponse;
 import org.junit.jupiter.api.*;
 import server.Server;
-import service.responses.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -2,8 +2,8 @@ package client;
 
 import com.google.gson.Gson;
 import model.UserData;
-import service.requests.*;
-import service.responses.*;
+import model.responses.*;
+import model.requests.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

@@ -2,11 +2,11 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
+import model.requests.*;
+import model.responses.*;
 import org.junit.jupiter.api.*;
 import dataaccess.*;
 import model.UserData;
-import service.requests.*;
-import service.responses.*;
 
 
 import static org.junit.jupiter.api.Assertions.*;

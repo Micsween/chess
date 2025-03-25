@@ -5,8 +5,9 @@ import chess.ChessGame;
 import dataaccess.*;
 import model.AuthData;
 import model.GameData;
-import service.requests.*;
-import service.responses.*;
+import model.requests.CreateGameRequest;
+import model.requests.JoinGameRequest;
+import model.responses.*;
 
 public class GameService {
     ServerDaos serverDaos;
