@@ -225,7 +225,7 @@ public class Main {
     }
 
 
-    private static final Map<Character, String> BlackPieceMap = Map.of(
+    private static final Map<Character, String> BLACK_PIECE_MAP = Map.of(
             'p', EscapeSequences.BLACK_PAWN,
             'n', EscapeSequences.BLACK_KNIGHT,
             'r', EscapeSequences.BLACK_ROOK,
@@ -234,7 +234,7 @@ public class Main {
             'b', EscapeSequences.BLACK_BISHOP);
 
 
-    private static final Map<Character, String> WhitePieceMap = Map.of(
+    private static final Map<Character, String> WHITE_PIECE_MAP = Map.of(
             'P', EscapeSequences.WHITE_PAWN,
             'N', EscapeSequences.WHITE_KNIGHT,
             'R', EscapeSequences.WHITE_ROOK,
@@ -267,15 +267,16 @@ public class Main {
     static String color = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
 
     static void switchColor() {
-        color = (color.equals(EscapeSequences.SET_BG_COLOR_LIGHT_GREY)) ? EscapeSequences.SET_BG_COLOR_BLACK : EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+        color = (color.equals(EscapeSequences.SET_BG_COLOR_LIGHT_GREY))
+                ? EscapeSequences.SET_BG_COLOR_BLACK : EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
         System.out.print(color);
     }
 
     static void printBoardSquare(char c) {
         if (Character.isUpperCase(c)) {
-            System.out.print(WhitePieceMap.get(c));
+            System.out.print(WHITE_PIECE_MAP.get(c));
         } else if (Character.isLowerCase(c)) {
-            System.out.print(BlackPieceMap.get(c));
+            System.out.print(BLACK_PIECE_MAP.get(c));
         } else {
             System.out.print(EscapeSequences.EMPTY);
         }
