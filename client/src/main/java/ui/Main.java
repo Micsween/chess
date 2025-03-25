@@ -45,7 +45,7 @@ public class Main {
     }
 
 
-    enum preLoginCommands {
+    enum PreLoginCommands {
         register,
         login,
         quit,
@@ -61,7 +61,7 @@ public class Main {
 
     static String printCommandUI() {
         StringBuilder consoleUIBuilder = new StringBuilder();
-        for (preLoginCommands key : preLoginCommands.values()) {
+        for (PreLoginCommands key : PreLoginCommands.values()) {
             consoleUIBuilder.append(key);
             for (String param : preLoginCommandParamMap.get(key.toString())) {
                 consoleUIBuilder.append(" <").append(param).append("> ");
@@ -147,7 +147,6 @@ public class Main {
             case "list":
                 try {
                     ListGamesResponse listGamesResponse = serverFacade.listGames(authToken);
-                    //, and displays the games in a numbered list, including the game name and players (not observers) in the game
                     int i = 1;
                     for (GameData game : listGamesResponse.games()) {
                         System.out.print(i + ". ");
@@ -226,7 +225,7 @@ public class Main {
     }
 
 
-    private static final Map<Character, String> blackPieceMap = Map.of(
+    private static final Map<Character, String> BlackPieceMap = Map.of(
             'p', EscapeSequences.BLACK_PAWN,
             'n', EscapeSequences.BLACK_KNIGHT,
             'r', EscapeSequences.BLACK_ROOK,
@@ -235,7 +234,7 @@ public class Main {
             'b', EscapeSequences.BLACK_BISHOP);
 
 
-    private static final Map<Character, String> whitePieceMap = Map.of(
+    private static final Map<Character, String> WhitePieceMap = Map.of(
             'P', EscapeSequences.WHITE_PAWN,
             'N', EscapeSequences.WHITE_KNIGHT,
             'R', EscapeSequences.WHITE_ROOK,
@@ -274,9 +273,9 @@ public class Main {
 
     static void printBoardSquare(char c) {
         if (Character.isUpperCase(c)) {
-            System.out.print(whitePieceMap.get(c));
+            System.out.print(WhitePieceMap.get(c));
         } else if (Character.isLowerCase(c)) {
-            System.out.print(blackPieceMap.get(c));
+            System.out.print(BlackPieceMap.get(c));
         } else {
             System.out.print(EscapeSequences.EMPTY);
         }
