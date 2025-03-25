@@ -27,20 +27,20 @@ public class ChessBoard implements Cloneable {
     public String toString() {
         StringBuilder chessBoardBuilder = new StringBuilder();
         for (int row = 8; row > 0; row--) {
-            for (int col = 0; col < 9; col++) {
+            for (int col = 1; col < 9; col++) {
                 ChessPiece piece = board[row][col];
                 if (piece != null) {
                     char pieceChar = TYPE_TO_CHAR_MAP.get(piece.getPieceType());
                     switch (piece.getTeamColor()) {
                         case WHITE:
-                            chessBoardBuilder.append(Character.toUpperCase(pieceChar)).append("|");
+                            chessBoardBuilder.append(Character.toUpperCase(pieceChar));
                             break;//a lowercase letter to represent the piece
                         case BLACK:
-                            chessBoardBuilder.append(pieceChar).append("|");
+                            chessBoardBuilder.append(pieceChar);
                             break;
                     }
                 } else {
-                    chessBoardBuilder.append(" |");
+                    chessBoardBuilder.append(" ");
                 }
             }
             chessBoardBuilder.append("\n");
