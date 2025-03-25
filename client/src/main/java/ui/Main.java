@@ -104,7 +104,7 @@ public class Main {
                 } else {
                     try {
                         //bug where even if password is incorrect it still logs in
-                        LoginResponse loginResponse = serverFacade.login(new UserData(params[0], inputs[1], null));
+                        LoginResponse loginResponse = serverFacade.login(new UserData(params[0], params[1], null));
                         username = loginResponse.username();
                         authToken = loginResponse.authToken();
                     } catch (ClientException e) {
@@ -169,8 +169,9 @@ public class Main {
                     int gameID = Integer.parseInt(params[0]);
                     serverFacade.joinPlayer(authToken, params[1], gameID);
                     gameplayUI(gameID);
-                } catch (Exception e) {
-                    System.err.println(e.getMessage());
+                } catch (ClientException e) {
+                    System.out.println(params[1] + " is already taken, or the game is full. Please pick a different color, or try 'observe'!");
+                    postLogin();
                 }
                 break;
             case "observe":
