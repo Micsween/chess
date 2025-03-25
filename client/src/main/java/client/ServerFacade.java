@@ -2,7 +2,6 @@ package client;
 
 import com.google.gson.Gson;
 import model.UserData;
-import server.Server;
 import service.requests.*;
 import service.responses.*;
 
@@ -19,7 +18,12 @@ public class ServerFacade {
     Gson gson = new Gson();
     String url;
 
-    //            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    public record GameNameRequest(String gameName) {
+    }
+
+    public record JoinGameBody(String playerColor, Integer gameID) {
+    }
+
     public ServerFacade(String host, String port) {
 
         this.url = "http://" + host + ":" + port;
@@ -47,13 +51,12 @@ public class ServerFacade {
     }
 
     public CreateGameResponse createGame(String gameName, String authToken) {
-        //CreateGameRequest createGameRequest = new CreateGameRequest(gameName, authToken);
-        Server.GameNameRequest gameNameRequest = new Server.GameNameRequest(gameName);
+        GameNameRequest gameNameRequest = new GameNameRequest(gameName);
         return send("/game", "POST", gameNameRequest, CreateGameResponse.class, authToken);
     }
 
     public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {
-        Server.JoinGameBody joinGameBody = new Server.JoinGameBody(playerColor, gameID);
+        JoinGameBody joinGameBody = new JoinGameBody(playerColor, gameID);
         return send("/game", "PUT", joinGameBody, JoinGameResponse.class, authToken);
     }
 
