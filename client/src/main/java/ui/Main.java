@@ -1,11 +1,11 @@
 package ui;
 
+import chess.ChessBoard;
 import client.ClientException;
 import client.ServerFacade;
 import model.GameData;
 import model.UserData;
 import server.Server;
-import service.responses.CreateGameResponse;
 import service.responses.ListGamesResponse;
 import service.responses.LoginResponse;
 import service.responses.RegisterResponse;
@@ -17,7 +17,7 @@ public class Main {
     static Server server;
     static String username;
     static String authToken;
-    String[] gameIDs;
+    static Boolean quit = false;
 
     public static void main(String[] args) {
         server = new Server();
@@ -25,21 +25,22 @@ public class Main {
         System.out.println("Started test HTTP server on " + port);
         serverFacade = new ServerFacade("localhost", Integer.toString(port));
 
-
-        //here is where you add helper functions
-        //take an input
         while (true) {
             System.out.println("Welcome to CS ♕ 240 Chess. Type 'help' to get started.");
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             if (line.equals("help")) {
                 preLogin();
-                //await new input
                 if (username != null) {
                     postLogin();
                 }
-                break;
+                if (quit) {
+                    System.out.println("Goodbye!");
+                    System.exit(0);
+                    break;
+                }
             }
+
         }
 
 
@@ -80,7 +81,6 @@ public class Main {
         String[] inputs = input.split(" ");
         String command = inputs[0];
         String[] params = Arrays.copyOfRange(inputs, 1, inputs.length);
-        System.out.println(Arrays.toString(params));
         switch (command) {
             case "register":
                 if (params.length != 3) {
@@ -88,7 +88,7 @@ public class Main {
                     preLogin();
                 } else {
                     try {
-                        RegisterResponse registerResponse = serverFacade.register(new UserData(params[0], params[1], inputs[2]));
+                        RegisterResponse registerResponse = serverFacade.register(new UserData(params[0], params[1], params[2]));
                         username = registerResponse.username();
                         authToken = registerResponse.authToken();
                     } catch (ClientException e) {
@@ -114,6 +114,7 @@ public class Main {
                 }
                 break;
             case "quit":
+                quit = true;
                 return;
             case "help":
                 preLogin();
@@ -134,9 +135,14 @@ public class Main {
                 if (params.length != postLoginCommandParamMap.get(command).length) {
                     System.out.println("\n Please provide all fields. \n");
                 } else {
-                    CreateGameResponse createGameResponse = serverFacade.createGame(params[0], authToken);
+                    try {
+                        serverFacade.createGame(params[0], authToken);
+                    } catch (ClientException e) {
+                        System.out.println("There was an error creating your game.");
+                        postLogin();
+                        return;
+                    }
                     System.out.println("Game created! Use the command 'list' to see the list of active games.");
-                    //save the created game?
                     postLogin();
                 }
                 break;
@@ -160,16 +166,16 @@ public class Main {
                 break;
             case "join":
                 try {
-                    System.out.println(Integer.parseInt(params[0]));
-                    serverFacade.joinPlayer(authToken, params[1], Integer.parseInt(params[0]));
-                    //switch to gameplayUI
-                    gameplayUI();
+                    int gameID = Integer.parseInt(params[0]);
+                    serverFacade.joinPlayer(authToken, params[1], gameID);
+                    gameplayUI(gameID);
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
                 break;
             case "observe":
-                //switch to the gameplay UI
+                int gameID = Integer.parseInt(params[0]);
+                gameplayUI(gameID);
                 break;
             case "logout":
                 serverFacade.logout(authToken);
@@ -178,6 +184,7 @@ public class Main {
                 preLogin();
                 break;
             case "quit":
+                quit = true;
                 return;
             case "help":
                 postLogin();
@@ -219,18 +226,113 @@ public class Main {
         return consoleUIBuilder.toString();
     }
 
-    static void gameplayUI() {
-        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        System.out.printf("This is hopefully a line of background color light gray...");
-        //if white perspective: a1 is the bottom left corner
-        //if black perspective a1 is top right corner
 
+    private static final Map<Character, String> blackPieceMap = Map.of(
+            'p', EscapeSequences.BLACK_PAWN,
+            'n', EscapeSequences.BLACK_KNIGHT,
+            'r', EscapeSequences.BLACK_ROOK,
+            'q', EscapeSequences.BLACK_QUEEN,
+            'k', EscapeSequences.BLACK_KING,
+            'b', EscapeSequences.BLACK_BISHOP);
+
+
+    private static final Map<Character, String> whitePieceMap = Map.of(
+            'P', EscapeSequences.WHITE_PAWN,
+            'N', EscapeSequences.WHITE_KNIGHT,
+            'R', EscapeSequences.WHITE_ROOK,
+            'Q', EscapeSequences.WHITE_QUEEN,
+            'K', EscapeSequences.WHITE_KING,
+            'B', EscapeSequences.WHITE_BISHOP);
+
+    static void printHeading(int start, int finish, int modifier) {
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLACK);
+        System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
+        System.out.print(EscapeSequences.EMPTY);
+        char[] headings = "abcdefgh".toCharArray();
+        for (int i = start; i != finish; i += modifier) {
+            System.out.print("\u2009 " + headings[i] + "\u2009 ");
+        }
+        System.out.print(EscapeSequences.EMPTY);
+        System.out.print(EscapeSequences.RESET_BG_COLOR);
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+        System.out.println();
     }
-    //prelogin function >> just awaits input
-    //register handler
-    //login handler
-    //quit handler
-    //help heandler
-    //postlogin function
-    //gameplay function
+
+    static void printHeading(char row) {
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_BLACK);
+        System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
+        System.out.print("\u2009 " + row + "\u2009 ");
+        System.out.print(EscapeSequences.RESET_BG_COLOR);
+        System.out.print(EscapeSequences.RESET_TEXT_COLOR);
+    }
+
+    static String color = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+
+    static void switchColor() {
+        color = (color.equals(EscapeSequences.SET_BG_COLOR_LIGHT_GREY)) ? EscapeSequences.SET_BG_COLOR_BLACK : EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+        System.out.print(color);
+    }
+
+    static void printBoardSquare(char c) {
+        if (Character.isUpperCase(c)) {
+            System.out.print(whitePieceMap.get(c));
+        } else if (Character.isLowerCase(c)) {
+            System.out.print(blackPieceMap.get(c));
+        } else {
+            System.out.print(EscapeSequences.EMPTY);
+        }
+    }
+
+    static GameData findGameData(int gameID) {
+        try {
+            ListGamesResponse listResponse = serverFacade.listGames(authToken);
+            return listResponse.games().stream().filter(game -> gameID == game.gameID())
+                    .findFirst()
+                    .orElse(null);
+        } catch (ClientException e) {
+            System.out.println("You are not authenticated.");
+        }
+        return null;
+    }
+
+    static void gameplayUI(int gameID) {
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+        GameData gameData = findGameData(gameID);
+        if (gameData == null) {
+            System.out.println("No game found.");
+            preLogin();
+            return;
+        }
+        ChessBoard chessBoard = gameData.game().getBoard();
+        String board = chessBoard.toString();
+        String[] lines = board.split("\n");
+
+        if (Objects.equals(username, gameData.blackUsername())) {
+            printBoard(lines, 7, -1, -1);
+        } else {
+            printBoard(lines, 0, 8, 1);
+        }
+    }
+
+    static void printBoard(String[] lines, int start, int finish, int modifier) {
+        char[] numbers = "87654321".toCharArray();
+
+        printHeading(start, finish, modifier);
+        for (int i = start; i != finish; i += modifier) {
+            String line = lines[i];
+            char row = numbers[i];
+            printHeading(row);
+            switchColor();
+            for (char c : line.toCharArray()) {
+                switchColor();
+                printBoardSquare(c);
+            }
+            printHeading(row);
+            System.out.println();
+        }
+        printHeading(start, finish, modifier);
+    }
+
 }
+
+
