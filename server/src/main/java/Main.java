@@ -1,10 +1,14 @@
 import chess.*;
-import server.Server;
+import server.HttpServer;
 
 public class Main {
     public static void main(String[] args) {
-        Server server = new Server();
+        HttpServer server = new HttpServer();
         try{
+            //call port(8080)
+            //call spark.init();
+            //server.setup
+            //websocket.websocket
             server.run(8080);
         }catch(Exception e){
             e.printStackTrace();

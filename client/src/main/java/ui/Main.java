@@ -18,30 +18,36 @@ public class Main {
     static String username;
     static String authToken;
     static Boolean quit = false;
+    static boolean gameStarted = false;
+
+    static String printIntro() {
+        System.out.println("Welcome to CS ♕ 240 Chess. Type 'help' to get started.");
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
 
     public static void main(String[] args) {
 
         serverFacade = new ServerFacade("localhost", "8080");
-
-        while (true) {
-            System.out.println("Welcome to CS ♕ 240 Chess. Type 'help' to get started.");
-            Scanner scanner = new Scanner(System.in);
-            String line = scanner.nextLine();
-            if (line.equals("help")) {
-                preLogin();
-                if (username != null) {
-                    postLogin();
-                }
-                if (quit) {
-                    System.out.println("Goodbye!");
-                    System.exit(0);
-                    break;
-                }
-            }
-
+        String line = "";
+        while (!line.equals("help")) {
+            line = printIntro();
         }
-
-
+        while (true) {
+            preLogin();
+            if (username != null) {
+                gameStarted = postLogin();
+            }
+            if (quit) {
+                System.out.println("Goodbye!");
+                System.exit(0);
+                break;
+            }
+            if (gameStarted) {
+                System.out.println("game started");
+                playGame();
+            }
+        }
     }
 
 
@@ -58,6 +64,7 @@ public class Main {
             "quit", new String[]{},
             "help", new String[]{}
     );
+
 
     static String printCommandUI() {
         StringBuilder consoleUIBuilder = new StringBuilder();
@@ -121,7 +128,7 @@ public class Main {
 
     }
 
-    static void postLogin() {
+    static boolean postLogin() {
         System.out.println(printPostCommandUI());
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
@@ -132,13 +139,14 @@ public class Main {
             case "create":
                 if (params.length != postLoginCommandParamMap.get(command).length) {
                     System.out.println("\n Please provide all fields. \n");
+                    postLogin();
                 } else {
                     try {
                         serverFacade.createGame(params[0], authToken);
                     } catch (ClientException e) {
                         System.out.println("There was an error creating your game.");
                         postLogin();
-                        return;
+                        return false;
                     }
                     System.out.println("Game created! Use the command 'list' to see the list of active games.");
                     postLogin();
@@ -166,15 +174,18 @@ public class Main {
                     int gameID = Integer.parseInt(params[0]);
                     serverFacade.joinPlayer(authToken, params[1], gameID);
                     gameplayUI(gameID);
+                    return true;
                 } catch (ClientException e) {
                     System.out.println(params[1] + " is already taken, or the game is full. Please pick a different color, or try 'observe'!");
                     postLogin();
+                } catch (Exception e) {
+                    System.out.println("Please pick a one-word name.");
                 }
                 break;
             case "observe":
                 int gameID = Integer.parseInt(params[0]);
                 gameplayUI(gameID);
-                break;
+                return true;
             case "logout":
                 serverFacade.logout(authToken);
                 username = null;
@@ -183,13 +194,13 @@ public class Main {
                 break;
             case "quit":
                 quit = true;
-                return;
+                return false;
             case "help":
                 postLogin();
                 break;
 
         }
-
+        return true;
     }
 
     enum PostLoginCommand {
@@ -311,6 +322,18 @@ public class Main {
         } else {
             printBoard(lines, 0, 8, 1);
         }
+    }
+
+
+    static void playGame() {
+        boolean gameWon = false;
+        while (true) {
+
+            if (gameWon) {
+                break;
+            }
+        }
+
     }
 
     static void printBoard(String[] lines, int start, int finish, int modifier) {
