@@ -14,13 +14,21 @@ import service.UserService;
 import spark.Response;
 import spark.Spark;
 
-public class Server {
+//@WebSocket
+//public class WSServer {
+//    public static void main(String[] args) {
+//        Spark.port(8080);
+//        Spark.webSocket("/ws", WSServer.class);
+//        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
+//    }
+//}
+public class HttpServer {
 
-    Gson gson = new Gson();
-    ServerDaos daos = new ServerDaos(new DBAuthDAO(), new DBUserDAO(), new DBGameDAO());
-    GameService gameService = new GameService(daos);
-    UserService userService = new UserService(daos);
-    AuthService authService = new AuthService(daos);
+    static Gson gson = new Gson();
+    static ServerDaos daos = new ServerDaos(new DBAuthDAO(), new DBUserDAO(), new DBGameDAO());
+    static GameService gameService = new GameService(daos);
+    static UserService userService = new UserService(daos);
+    static AuthService authService = new AuthService(daos);
 
     public record GameNameRequest(String gameName) {
     }
@@ -29,15 +37,15 @@ public class Server {
     }
 
     //put your most important stuff at the top
-    public int run(int desiredPort) {
+    public static int run(int desiredPort) {
         try {
             createDatabase();
         } catch (Exception e) {
             e.printStackTrace();
         }
         port(desiredPort);
-        staticFiles.location("web");
 
+        staticFiles.location("web");
         post("/user", (request, response) -> {
             try {
                 RegisterRequest registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
@@ -123,13 +131,13 @@ public class Server {
         return port();
     }
 
-    String toError(Response response, ErrorResponse errorResponse) {
+    static String toError(Response response, ErrorResponse errorResponse) {
         response.status(errorResponse.statusCode());
         response.type("application/json");
         return gson.toJson(errorResponse);
     }
 
-    String toJson(Response response, Object body) {
+    static String toJson(Response response, Object body) {
         response.type("application/json");
         return gson.toJson(body);
     }
