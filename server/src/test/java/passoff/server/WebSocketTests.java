@@ -4,7 +4,7 @@ import chess.*;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import passoff.websocket.*;
-import server.HttpServer;
+import server.Server;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -18,7 +18,7 @@ import static websocket.messages.ServerMessage.ServerMessageType.*;
 public class WebSocketTests {
     private static WebsocketTestingEnvironment environment;
     private static TestServerFacade serverFacade;
-    private static HttpServer server;
+    private static Server server;
     private static Long waitTime;
     private WebsocketUser white;
     private WebsocketUser black;
@@ -32,7 +32,7 @@ public class WebSocketTests {
 
     @BeforeAll
     public static void init() throws URISyntaxException {
-        server = new HttpServer();
+        server = new Server();
         var port = Integer.toString(server.run(0));
         System.out.println("Started test HTTP server on " + port);
 

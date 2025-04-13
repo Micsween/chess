@@ -5,19 +5,19 @@ import model.responses.CreateGameResponse;
 import model.responses.ListGamesResponse;
 import model.responses.RegisterResponse;
 import org.junit.jupiter.api.*;
-import server.HttpServer;
+import server.Server;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ServerFacadeTests {
     static ServerFacade serverFacade;
-    private static HttpServer server;
+    private static Server server;
     UserData userData = new UserData("test-user", "test-pass", "test-email");
 
     @BeforeAll
     public static void init() {
-        server = new HttpServer();
+        server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
         serverFacade = new ServerFacade("localhost", Integer.toString(port));
