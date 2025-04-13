@@ -1,34 +1,27 @@
 package server;
 
-import static dataaccess.DatabaseManager.createDatabase;
-import static spark.Spark.*;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import dataaccess.*;
+import dataaccess.DBAuthDAO;
+import dataaccess.DBGameDAO;
+import dataaccess.DBUserDAO;
+import dataaccess.ServerDaos;
 import model.requests.*;
 import model.responses.*;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.Response;
-import spark.Spark;
 
-//@WebSocket
-//public class WSServer {
-//    public static void main(String[] args) {
-//        Spark.port(8080);
-//        Spark.webSocket("/ws", WSServer.class);
-//        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
-//    }
-//}
+import static spark.Spark.*;
+
 public class HttpServer {
+    Gson gson = new Gson();
+    ServerDaos daos = new ServerDaos(new DBAuthDAO(), new DBUserDAO(), new DBGameDAO());
+    GameService gameService = new GameService(daos);
+    UserService userService = new UserService(daos);
+    AuthService authService = new AuthService(daos);
 
-    static Gson gson = new Gson();
-    static ServerDaos daos = new ServerDaos(new DBAuthDAO(), new DBUserDAO(), new DBGameDAO());
-    static GameService gameService = new GameService(daos);
-    static UserService userService = new UserService(daos);
-    static AuthService authService = new AuthService(daos);
 
     public record GameNameRequest(String gameName) {
     }
@@ -36,16 +29,8 @@ public class HttpServer {
     public record JoinGameBody(String playerColor, Integer gameID) {
     }
 
-    //put your most important stuff at the top
-    public static int run(int desiredPort) {
-        try {
-            createDatabase();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        port(desiredPort);
+    public void run() {
 
-        staticFiles.location("web");
         post("/user", (request, response) -> {
             try {
                 RegisterRequest registerRequest = gson.fromJson(request.body(), RegisterRequest.class);
@@ -94,7 +79,7 @@ public class HttpServer {
 
         post("/game", (request, response) -> {
             try {
-                GameNameRequest gameNameRequest = gson.fromJson(request.body(), GameNameRequest.class);
+                HttpServer.GameNameRequest gameNameRequest = gson.fromJson(request.body(), HttpServer.GameNameRequest.class);
                 CreateGameRequest createGameRequest = new CreateGameRequest(request.headers("authorization"), gameNameRequest.gameName());
                 CreateGameResponse createGameResponse = gameService.createGame(createGameRequest);
                 return toJson(response, createGameResponse);
@@ -107,7 +92,7 @@ public class HttpServer {
 
         put("/game", (request, response) -> {
             try {
-                JoinGameBody joinGameBody = gson.fromJson(request.body(), JoinGameBody.class);
+                HttpServer.JoinGameBody joinGameBody = gson.fromJson(request.body(), HttpServer.JoinGameBody.class);
                 JoinGameRequest joinGameRequest = new JoinGameRequest(request.headers("authorization"),
                         joinGameBody.playerColor(), joinGameBody.gameID());
                 return toJson(response, gameService.joinGame(joinGameRequest));
@@ -126,24 +111,16 @@ public class HttpServer {
             }
         });
 
-        init();
-        awaitInitialization();
-        return port();
     }
 
-    static String toError(Response response, ErrorResponse errorResponse) {
+    String toError(Response response, ErrorResponse errorResponse) {
         response.status(errorResponse.statusCode());
         response.type("application/json");
         return gson.toJson(errorResponse);
     }
 
-    static String toJson(Response response, Object body) {
+    String toJson(Response response, Object body) {
         response.type("application/json");
         return gson.toJson(body);
-    }
-
-    public void stop() {
-        Spark.stop();
-        Spark.awaitStop();
     }
 }
