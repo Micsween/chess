@@ -3,16 +3,14 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.ChessPosition;
 import client.ClientException;
 import client.ServerFacade;
 import client.Websocket;
 import model.GameData;
 import model.responses.ListGamesResponse;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 
 //game renders and plays a game.
@@ -37,17 +35,27 @@ public class Game {
         }
     }
 
-//make a function that, when provided a piece will get all the moves for a specific piece.
+    //make a function that, when provided a piece will get all the moves for a specific piece.
 //meaning i can access th start position, making the make move command easier for users.
+    Map<String, Integer> CHAR_TO_COL_MAP = new HashMap<>() {{
+        put("a", 1);
+        put("b", 2);
+        put("c", 3);
+        put("d", 4);
+        put("e", 5);
+        put("f", 6);
+        put("g", 7);
+        put("h", 8);
+    }};
 
 
     Map<String, String[]> gameCommandParamMap = Map.of(
             "help", new String[]{},
-            "make move", new String[]{"piece", "col", "row"},
+            "make move", new String[]{"start row", "start col", "end col", "end row"},
             "redraw", new String[]{},
             "leave", new String[]{},
             "resign", new String[]{},
-            "highlight", new String[]{"piece"}
+            "highlight", new String[]{"row", "col"}
     );
 
     public String printCommandUI() {
@@ -74,43 +82,16 @@ public class Game {
         gameWon = true;
     }
 
-    private final Map<String, ChessPiece.PieceType> INPUT_TO_PIECE_MAP = Map.of(
-            "p P PAWN pawn", ChessPiece.PieceType.PAWN,
-            "n N KNIGHT knight", ChessPiece.PieceType.KNIGHT,
-            "r R ROOK rook", ChessPiece.PieceType.ROOK,
-            "q Q QUEEN queen", ChessPiece.PieceType.QUEEN,
-            "k K KING king", ChessPiece.PieceType.KING,
-            "b B BISHOP bishop", ChessPiece.PieceType.BISHOP);
-
-    ChessPiece.PieceType convertInputToPieceType(String input) {
-        //find which input corresponds to a specific pieceType
-        ChessPiece.PieceType pieceType = null;
-        for (Map.Entry<String, ChessPiece.PieceType> entry : INPUT_TO_PIECE_MAP.entrySet()) {
-            String inputs = entry.getKey();
-            if (inputs.contains(input)) {
-                pieceType = entry.getValue();
-            }
-        }
-        return pieceType;
-        //new ChessPiece((ChessGame.TeamColor) color, ChessPiece.PieceType.PAWN);
-    }
-
     void highlightMoves(String[] params) {
-        if (params.length < 1) {
+        if (params.length < 2) {
             System.out.println("Please provide a chess piece to highlight. Format: 'q', 'Q', 'QUEEN', 'queen'");
             return;
         }
-        ChessPiece.PieceType pieceType = convertInputToPieceType(params[0]);
-        if (pieceType == null) {
-            System.out.println("Please provide a chess piece to highlight. Format: 'q', 'Q', 'QUEEN', 'queen'");
-            return;
-        }
-        var piece = new ChessPiece(color, pieceType);
-        GameData gameData = getGameData(gameId);
-        ChessBoard board = gameData.game().getBoard();
 
-        var moves = gameData.game().validMoves(board.getPiecePosition(piece));
-        System.out.println(moves);
+        GameData gameData = getGameData(gameId);
+        int row = Integer.parseInt(params[0]);
+        int col = CHAR_TO_COL_MAP.get(params[1]);
+        var moves = gameData.game().validMoves(new ChessPosition(row, col));
         if (moves == null) {
             System.out.println("This piece has been captured.");
             return;
@@ -120,6 +101,7 @@ public class Game {
             return;
         }
         System.out.println(moves);
+
         //System.out.println(printCommandUI());
         //getPiece();
         //get the piece based off of user input
