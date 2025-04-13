@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.ClientException;
 import client.ServerFacade;
 import client.Websocket;
@@ -82,6 +79,17 @@ public class Game {
         gameWon = true;
     }
 
+    Collection<ChessPosition> getEndPositions(Collection<ChessMove> moves) {
+        var positions = new ArrayList<ChessPosition>();
+        moves.forEach(move -> {
+            int row = move.getEndPosition().getRow();
+            int col = (color == ChessGame.TeamColor.BLACK) ? 9 - move.getEndPosition().getColumn() : move.getEndPosition().getColumn();
+            positions.add(new ChessPosition(row, col));
+
+        });
+        return positions;
+    }
+
     void highlightMoves(String[] params) {
         if (params.length < 2) {
             System.out.println("Please provide a chess piece to highlight. Format: 'q', 'Q', 'QUEEN', 'queen'");
@@ -101,7 +109,9 @@ public class Game {
             return;
         }
         System.out.println(moves);
-
+        var positions = getEndPositions(moves);
+        boardUI(positions);
+        //if color = white
         //System.out.println(printCommandUI());
         //getPiece();
         //get the piece based off of user input
@@ -118,7 +128,7 @@ public class Game {
         System.out.println("Type 'help' to see the list of available commands.");
 
         while (!gameWon) {
-            boardUI(gameId);
+            boardUI();
             //print the commands
             var inputs = getInput();
             var command = inputs[0];
@@ -174,17 +184,29 @@ public class Game {
     }
 
     void printBoard(String[] lines, int start, int finish, int modifier) {
-        char[] numbers = "87654321".toCharArray();
+        printBoard(lines, start, finish, modifier, new ArrayList<>());
+    }
+
+    void printBoard(String[] lines, int start, int finish, int modifier, Collection<ChessPosition> highlights) {
+        int[] numbers = {8, 7, 6, 5, 4, 3, 2, 1};
 
         printHeading(start, finish, modifier);
         for (int i = start; i != finish; i += modifier) {
             String line = lines[i];
-            char row = numbers[i];
+            int row = numbers[i];
             printHeading(row);
             switchColor();
-            for (char c : line.toCharArray()) {
-                switchColor();
-                printBoardSquare(c);
+            for (int col = start; col < line.length(); col += modifier) {
+                char[] characters = line.toCharArray();
+                ChessPosition currentPosition = new ChessPosition(row, col + 1);
+                if (highlights != null && highlights.contains(currentPosition)) {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
+                    printBoardSquare(characters[col]);
+                    switchColor();
+                } else {
+                    switchColor();
+                    printBoardSquare(characters[col]);
+                }
             }
             printHeading(row);
             System.out.println();
@@ -204,21 +226,24 @@ public class Game {
         return null;
     }
 
-    void boardUI(int gameID) {
+    void boardUI(Collection<ChessPosition> positions) {
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        GameData gameData = getGameData(gameID);
+        GameData gameData = getGameData(gameId);
 
         ChessBoard chessBoard = gameData.game().getBoard();
         String board = chessBoard.toString();
         String[] lines = board.split("\n");
 
         if (Objects.equals(username, gameData.blackUsername())) {
-            printBoard(lines, 7, -1, -1);
+            printBoard(lines, 7, -1, -1, positions);
         } else {
-            printBoard(lines, 0, 8, 1);
+            printBoard(lines, 0, 8, 1, positions);
         }
     }
 
+    void boardUI() {
+        boardUI(null);
+    }
 
     private static final Map<Character, String> BLACK_PIECE_MAP = Map.of(
             'p', EscapeSequences.BLACK_PAWN,
@@ -252,7 +277,7 @@ public class Game {
         System.out.println();
     }
 
-    void printHeading(char row) {
+    void printHeading(int row) {
         System.out.print(EscapeSequences.SET_TEXT_COLOR_BLACK);
         System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
         System.out.print("\u2009 " + row + "\u2009 ");
