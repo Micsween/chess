@@ -1,6 +1,7 @@
 package ui;
 
 
+import chess.ChessGame;
 import client.ServerFacade;
 
 import java.util.*;
@@ -20,7 +21,7 @@ public class Main {
         String username = null;
         String authToken = null;
         int gameId = 0;
-        String color = null;
+        ChessGame.TeamColor color = null;
         //boolean gameStarted = false;
 
 
@@ -55,7 +56,7 @@ public class Main {
                 color = postLoginResult.color();
             } else {
                 System.out.println("game started");
-                game.playGame(gameId, username, authToken);
+                game.playGame(gameId, username, authToken, color);
             }
         }
         System.out.println("Goodbye!");

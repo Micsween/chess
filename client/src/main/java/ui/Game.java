@@ -1,6 +1,8 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
 import client.ClientException;
 import client.ServerFacade;
 import client.Websocket;
@@ -21,6 +23,8 @@ public class Game {
     String username;
     ServerFacade server;
     boolean gameWon = false;
+    ChessGame.TeamColor color;
+
 
     Game(ServerFacade serverFacade) {
         server = serverFacade;
@@ -39,7 +43,7 @@ public class Game {
 
     Map<String, String[]> gameCommandParamMap = Map.of(
             "help", new String[]{},
-            "make move", new String[]{"piece", "end col", "end row"},
+            "make move", new String[]{"piece", "col", "row"},
             "redraw", new String[]{},
             "leave", new String[]{},
             "resign", new String[]{},
@@ -48,10 +52,11 @@ public class Game {
 
     public String printCommandUI() {
         StringBuilder consoleUIBuilder = new StringBuilder();
+        consoleUIBuilder.append("Available commands:\n");
         for (String key : gameCommandParamMap.keySet()) {
             consoleUIBuilder.append(key);
             for (String param : gameCommandParamMap.get(key)) {
-                System.out.println(param);
+                //System.out.print(param);
                 consoleUIBuilder.append(" <").append(param).append("> ");
             }
             consoleUIBuilder.append("\n");
@@ -60,7 +65,6 @@ public class Game {
     }
 
     String[] getInput() {
-        System.out.println(printCommandUI());
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         return input.split(" ");
@@ -70,11 +74,67 @@ public class Game {
         gameWon = true;
     }
 
-    public void playGame(int gameId, String username, String authToken) {
+    private final Map<String, ChessPiece.PieceType> INPUT_TO_PIECE_MAP = Map.of(
+            "p P PAWN pawn", ChessPiece.PieceType.PAWN,
+            "n N KNIGHT knight", ChessPiece.PieceType.KNIGHT,
+            "r R ROOK rook", ChessPiece.PieceType.ROOK,
+            "q Q QUEEN queen", ChessPiece.PieceType.QUEEN,
+            "k K KING king", ChessPiece.PieceType.KING,
+            "b B BISHOP bishop", ChessPiece.PieceType.BISHOP);
+
+    ChessPiece.PieceType convertInputToPieceType(String input) {
+        //find which input corresponds to a specific pieceType
+        ChessPiece.PieceType pieceType = null;
+        for (Map.Entry<String, ChessPiece.PieceType> entry : INPUT_TO_PIECE_MAP.entrySet()) {
+            String inputs = entry.getKey();
+            if (inputs.contains(input)) {
+                pieceType = entry.getValue();
+            }
+        }
+        return pieceType;
+        //new ChessPiece((ChessGame.TeamColor) color, ChessPiece.PieceType.PAWN);
+    }
+
+    void highlightMoves(String[] params) {
+        if (params.length < 1) {
+            System.out.println("Please provide a chess piece to highlight. Format: 'q', 'Q', 'QUEEN', 'queen'");
+            return;
+        }
+        ChessPiece.PieceType pieceType = convertInputToPieceType(params[0]);
+        if (pieceType == null) {
+            System.out.println("Please provide a chess piece to highlight. Format: 'q', 'Q', 'QUEEN', 'queen'");
+            return;
+        }
+        var piece = new ChessPiece(color, pieceType);
+        GameData gameData = getGameData(gameId);
+        ChessBoard board = gameData.game().getBoard();
+
+        var moves = gameData.game().validMoves(board.getPiecePosition(piece));
+        System.out.println(moves);
+        if (moves == null) {
+            System.out.println("This piece has been captured.");
+            return;
+        }
+        if (moves.isEmpty()) {
+            System.out.println("This piece has no valid moves.");
+            return;
+        }
+        System.out.println(moves);
+        //System.out.println(printCommandUI());
+        //getPiece();
+        //get the piece based off of user input
+        //
+        //String board = board.toString();
+        //String[] lines = board.split("\n");
+    }
+
+    public void playGame(int gameId, String username, String authToken, ChessGame.TeamColor color) {
         this.gameId = gameId;
         this.authToken = authToken;
         this.username = username;
+        this.color = color;
         System.out.println("Type 'help' to see the list of available commands.");
+
         while (!gameWon) {
             boardUI(gameId);
             //print the commands
@@ -83,17 +143,36 @@ public class Game {
             String[] params = Arrays.copyOfRange(inputs, 1, inputs.length);
             switch (command) {
                 case "help":
+                    System.out.print(printCommandUI());
                     break;
                 case "highlight":
+                    highlightMoves(params);
+
+                    //add a function that gets a piece
+                    //get the chessgame from the database
+                    //server.
+                    //based on the team, get the position of that piece,
+
+                    //
                     break;
                 case "make move":
+                    //websocket message
                     makeMove();
+                    //make the move
+                    //send out a message that tells every one to redraw the oard
+                    //redraw the board
                     break;
                 case "redraw":
                     break;
                 case "leave":
+                    //websocket message
+                    //remove the player from the game if they're one of the players.
+                    //close the websocket connection
+                    //move to post login
                     break;
                 case "resign":
+                    //close the websocket connection
+                    //move to post login
                     break;
 
             }
@@ -131,7 +210,7 @@ public class Game {
         printHeading(start, finish, modifier);
     }
 
-    public GameData findGameData(int gameID) {
+    public GameData getGameData(int gameID) {
         try {
             ListGamesResponse listResponse = server.listGames(authToken);
             return listResponse.games().stream().filter(game -> gameID == game.gameID())
@@ -145,7 +224,7 @@ public class Game {
 
     void boardUI(int gameID) {
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        GameData gameData = findGameData(gameID);
+        GameData gameData = getGameData(gameID);
 
         ChessBoard chessBoard = gameData.game().getBoard();
         String board = chessBoard.toString();
@@ -177,7 +256,7 @@ public class Game {
             'B', EscapeSequences.WHITE_BISHOP);
 
 
-    static void printHeading(int start, int finish, int modifier) {
+    void printHeading(int start, int finish, int modifier) {
         System.out.print(EscapeSequences.SET_TEXT_COLOR_BLACK);
         System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
         System.out.print(EscapeSequences.EMPTY);
@@ -191,7 +270,7 @@ public class Game {
         System.out.println();
     }
 
-    static void printHeading(char row) {
+    void printHeading(char row) {
         System.out.print(EscapeSequences.SET_TEXT_COLOR_BLACK);
         System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
         System.out.print("\u2009 " + row + "\u2009 ");
@@ -199,15 +278,15 @@ public class Game {
         System.out.print(EscapeSequences.RESET_TEXT_COLOR);
     }
 
-    static String color = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
+    String backgroundColor = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
 
-    static void switchColor() {
-        color = (color.equals(EscapeSequences.SET_BG_COLOR_LIGHT_GREY))
+    void switchColor() {
+        backgroundColor = (backgroundColor.equals(EscapeSequences.SET_BG_COLOR_LIGHT_GREY))
                 ? EscapeSequences.SET_BG_COLOR_BLACK : EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
-        System.out.print(color);
+        System.out.print(backgroundColor);
     }
 
-    static void printBoardSquare(char c) {
+    void printBoardSquare(char c) {
         if (Character.isUpperCase(c)) {
             System.out.print(WHITE_PIECE_MAP.get(c));
         } else if (Character.isLowerCase(c)) {

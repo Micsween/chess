@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.ClientException;
 import client.ServerFacade;
 import model.GameData;
@@ -12,7 +13,7 @@ public class PostLogin {
     ServerFacade server;
     String authToken;
     int gameId;
-    String color;
+    ChessGame.TeamColor color;
 
     PostLogin(ServerFacade serverFacade) {
         server = serverFacade;
@@ -105,8 +106,8 @@ public class PostLogin {
         }
         try {
             gameId = Integer.parseInt(params[0]);
-            color = params[1];
-            server.joinPlayer(authToken, color, gameId);
+            color = params[1].equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            server.joinPlayer(authToken, color.toString(), gameId);
             return true;
         } catch (ClientException e) {
             System.out.println(params[1] + " is already taken, or the game is full. Please pick a different color, or try 'observe'!");

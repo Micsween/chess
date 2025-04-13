@@ -4,7 +4,7 @@ import chess.ChessGame;
 import org.junit.jupiter.api.*;
 import passoff.model.*;
 import passoff.server.TestServerFacade;
-import server.HttpServer;
+import server.Server;
 
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -17,14 +17,14 @@ public class DatabaseTests {
 
     private static TestServerFacade serverFacade;
 
-    private static HttpServer server;
+    private static Server server;
 
     private static Class<?> databaseManagerClass;
 
 
     @BeforeAll
     public static void startServer() {
-        server = new HttpServer();
+        server = new Server();
         serverFacade = new TestServerFacade("localhost", Integer.toString(server.run(0)));
     }
 
