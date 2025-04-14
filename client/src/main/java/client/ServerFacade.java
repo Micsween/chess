@@ -1,6 +1,7 @@
 package client;
 
 import com.google.gson.Gson;
+import model.GameData;
 import model.UserData;
 import model.responses.*;
 import model.requests.*;
@@ -58,6 +59,10 @@ public class ServerFacade {
     public JoinGameResponse joinPlayer(String authToken, String playerColor, Integer gameID) {
         JoinGameBody joinGameBody = new JoinGameBody(playerColor, gameID);
         return send("/game", "PUT", joinGameBody, JoinGameResponse.class, authToken);
+    }
+
+    public UpdateGameResponse updateGame(String authToken, GameData gameData) {
+        return send("/game/state", "PUT", gameData, UpdateGameResponse.class, authToken);
     }
 
     public void clear() {

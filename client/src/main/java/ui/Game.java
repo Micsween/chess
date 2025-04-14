@@ -19,7 +19,7 @@ public class Game {
     ServerFacade server;
     boolean gameWon = false;
     ChessGame.TeamColor color;
-
+    String winner;
 
     Game(ServerFacade serverFacade) {
         server = serverFacade;
@@ -48,7 +48,7 @@ public class Game {
 
     Map<String, String[]> gameCommandParamMap = Map.of(
             "help", new String[]{},
-            "make move", new String[]{"start row", "start col", "end col", "end row"},
+            "move", new String[]{"start row", "start col", "end col", "end row"},
             "redraw", new String[]{},
             "leave", new String[]{},
             "resign", new String[]{},
@@ -82,53 +82,115 @@ public class Game {
     Collection<ChessPosition> getEndPositions(Collection<ChessMove> moves) {
         var positions = new ArrayList<ChessPosition>();
         moves.forEach(move -> {
-            int row = move.getEndPosition().getRow();
-            int col = (color == ChessGame.TeamColor.BLACK) ? 9 - move.getEndPosition().getColumn() : move.getEndPosition().getColumn();
-            positions.add(new ChessPosition(row, col));
-
+            positions.add(move.getEndPosition());
         });
         return positions;
     }
 
+    Collection<ChessMove> getMoves(String[] params) {
+        var gameData = getGameData(gameId);
+        int row = Integer.parseInt(params[0]);
+        int col = CHAR_TO_COL_MAP.get(params[1]);
+
+        return gameData.game().validMoves(new ChessPosition(row, col));
+
+    }
+
     void highlightMoves(String[] params) {
         if (params.length < 2) {
-            System.out.println("Please provide a chess piece to highlight. Format: 'q', 'Q', 'QUEEN', 'queen'");
+            System.out.println("Please provide a chess piece to highlight.");
+            return;
+        }
+        if (!params[0].matches("[1-8]") || !params[1].matches("[a-hA-H]")) {
+            System.out.println("One of your inputs was incorrect. Please follow the format: 1-8, a-h");
             return;
         }
 
-        GameData gameData = getGameData(gameId);
-        int row = Integer.parseInt(params[0]);
-        int col = CHAR_TO_COL_MAP.get(params[1]);
-        var moves = gameData.game().validMoves(new ChessPosition(row, col));
+        var moves = getMoves(params);
         if (moves == null) {
-            System.out.println("This piece has been captured.");
+            System.out.println("There is no piece here.");
             return;
         }
         if (moves.isEmpty()) {
             System.out.println("This piece has no valid moves.");
             return;
         }
-        System.out.println(moves);
-        var positions = getEndPositions(moves);
-        boardUI(positions);
-        //if color = white
-        //System.out.println(printCommandUI());
-        //getPiece();
-        //get the piece based off of user input
-        //
-        //String board = board.toString();
-        //String[] lines = board.split("\n");
+
+        boardUI(getEndPositions(moves));
     }
+
+    public void spectateGame() {
+        System.out.println("You are now spectating: " +
+                getGameData(gameId).whiteUsername() +
+                "and" + getGameData(gameId).blackUsername());
+        boardUI();
+        while (true) {
+            System.out.println("Type 'help' to see the list of available commands.");
+            var inputs = getInput();
+            var command = inputs[0];
+            switch (command) {
+                case "leave":
+                    return;
+                case "redraw":
+                    boardUI();
+                    break;
+                case "help":
+                    System.out.println("help");
+                    System.out.println("leave");
+                    System.out.println("redraw");
+                    break;
+            }
+
+        }
+
+        //open a websocket connection that reprints the board anytime there is a change
+
+    }
+
+    ChessMove parseMove(String[] params) {
+        int startRow = Integer.parseInt(params[0]);
+        int startCol = Integer.parseInt(params[1]);
+        int endRow = Integer.parseInt(params[2]);
+        int endCol = Integer.parseInt(params[3]);
+        return new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
+    }
+
+    void makeMove(String[] params) {
+        if (params.length < 4) {
+            System.out.println("Please provide all fields");
+            return;
+        }
+        GameData gameData = getGameData(gameId);
+        ChessGame game = gameData.game();
+        if (!game.isTurn(color)) {
+            System.out.println("It is not your turn");
+            return;
+        }
+        try {
+            ChessMove move = parseMove(params);
+            game.makeMove(move);
+        } catch (InvalidMoveException e) {
+            System.out.println("Invalid move.");
+            return;
+        } catch (Exception e) {
+            System.out.println("One of your inputs is invalid. Please try again");
+            return;
+        }
+        server.updateGame(authToken, new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game));
+        boardUI();
+    }
+
 
     public void playGame(int gameId, String username, String authToken, ChessGame.TeamColor color) {
         this.gameId = gameId;
         this.authToken = authToken;
         this.username = username;
         this.color = color;
+
         System.out.println("Type 'help' to see the list of available commands.");
+        boardUI();
 
         while (!gameWon) {
-            boardUI();
             //print the commands
             var inputs = getInput();
             var command = inputs[0];
@@ -139,33 +201,39 @@ public class Game {
                     break;
                 case "highlight":
                     highlightMoves(params);
-
-                    //add a function that gets a piece
-                    //get the chessgame from the database
-                    //server.
-                    //based on the team, get the position of that piece,
-
-                    //
                     break;
-                case "make move":
+                case "move":
                     //websocket message
-                    makeMove();
+                    makeMove(params);
                     //make the move
                     //send out a message that tells every one to redraw the oard
                     //redraw the board
                     break;
                 case "redraw":
+                    boardUI();
                     break;
                 case "leave":
                     //websocket message
                     //remove the player from the game if they're one of the players.
                     //close the websocket connection
                     //move to post login
-                    break;
+                    System.out.println("Leaving game...");
+                    return;
                 case "resign":
-                    //close the websocket connection
-                    //move to post login
+                    System.out.println("Are you sure you'd like to resign? y/n");
+                    var confirmation = getInput();
+                    if (confirmation[0].equals("y")) {
+                        //declare the winner to everyone connected through websocket
+                        System.out.println("Declaring defeat");
+                        gameWon = true;
+                        winner = (color == ChessGame.TeamColor.BLACK ? "White" : "Black");
+                        System.out.println("Team" + color + " has resigned. Team " + winner + " has won!");
+                        //close the websocket connection
+
+                        return;
+                    }
                     break;
+
 
             }
 
@@ -187,6 +255,16 @@ public class Game {
         printBoard(lines, start, finish, modifier, new ArrayList<>());
     }
 
+    boolean highlightPosition(Collection<ChessPosition> highlights, char c, ChessPosition currentPosition) {
+        if (highlights != null && highlights.contains(currentPosition)) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
+            printBoardSquare(c);
+            switchColor();
+            return true;
+        }
+        return false;
+    }
+
     void printBoard(String[] lines, int start, int finish, int modifier, Collection<ChessPosition> highlights) {
         int[] numbers = {8, 7, 6, 5, 4, 3, 2, 1};
 
@@ -196,14 +274,10 @@ public class Game {
             int row = numbers[i];
             printHeading(row);
             switchColor();
-            for (int col = start; col < line.length(); col += modifier) {
+            for (int col = start; col != finish; col += modifier) {
                 char[] characters = line.toCharArray();
-                ChessPosition currentPosition = new ChessPosition(row, col + 1);
-                if (highlights != null && highlights.contains(currentPosition)) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_BLUE);
-                    printBoardSquare(characters[col]);
-                    switchColor();
-                } else {
+
+                if (!highlightPosition(highlights, characters[col], new ChessPosition(row, col + 1))) {
                     switchColor();
                     printBoardSquare(characters[col]);
                 }

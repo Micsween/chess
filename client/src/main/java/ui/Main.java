@@ -29,7 +29,8 @@ public class Main {
         PreLogin preLogin = new PreLogin(serverFacade);
         PostLogin postLogin = new PostLogin(serverFacade);
         Game game = new Game(serverFacade);
-
+        //game.playGame(23, "a", "1af22abd-dd04-409c-9333-168e7478b2f6", ChessGame.TeamColor.BLACK);
+        //game.playGame(23, "a", "f05e7fbc-6a47-49dc-9992-54fff8c36fc8", ChessGame.TeamColor.WHITE);
 
         String line = "";
         while (!line.equals("help")) {
@@ -56,7 +57,12 @@ public class Main {
                 color = postLoginResult.color();
             } else {
                 System.out.println("game started");
-                game.playGame(gameId, username, authToken, color);
+                if (color == null) {
+                    game.spectateGame();
+                } else {
+                    game.playGame(gameId, username, authToken, color);
+                }
+                gameId = 0;
             }
         }
         System.out.println("Goodbye!");
