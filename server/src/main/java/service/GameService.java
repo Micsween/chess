@@ -7,6 +7,7 @@ import model.AuthData;
 import model.GameData;
 import model.requests.CreateGameRequest;
 import model.requests.JoinGameRequest;
+import model.requests.UpdateGameRequest;
 import model.responses.*;
 
 public class GameService {
@@ -56,7 +57,18 @@ public class GameService {
         } catch (UnauthorizedException e) {
             throw new ServiceException(401, e.getMessage());
         }
+    }
 
+    public UpdateGameResponse updateGame(UpdateGameRequest request) throws ServiceException {
+        try {
+            authDao.getAuth(request.authToken());
+            gameDao.updateGame(request.gameData());
+            return new UpdateGameResponse();
+        } catch (UnauthorizedException e) {
+            throw new ServiceException(401, e.getMessage());
+        } catch (DataAccessException e) {
+            throw new ServiceException(400, e.getMessage());
+        }
     }
 
     public ClearResponse clear() {

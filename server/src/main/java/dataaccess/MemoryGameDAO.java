@@ -5,7 +5,7 @@ import model.GameData;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MemoryGameDAO implements GameDAO {
+public class MemoryGameDAO {
     public Collection<GameData> allGameData = new ArrayList<>();
 
     public GameData createGame(GameData gameData) throws DataAccessException {
@@ -26,7 +26,7 @@ public class MemoryGameDAO implements GameDAO {
         throw new RuntimeException("Game does not exist");
     }
 
-    @Override
+    //@Override
     public void joinGame(String username, String playerColor, Integer gameID) throws AlreadyTakenException, DataAccessException {
         GameData gameToJoin = getGame(gameID);
         if (gameToJoin == null) {

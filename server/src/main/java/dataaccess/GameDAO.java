@@ -25,6 +25,8 @@ public interface GameDAO {
      */
     Collection<GameData> listGames();
 
+    void updateGame(GameData gameData) throws DataAccessException;
+
     /**
      * Deletes ALL current GameData
      */

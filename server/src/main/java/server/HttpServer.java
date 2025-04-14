@@ -6,6 +6,7 @@ import dataaccess.DBAuthDAO;
 import dataaccess.DBGameDAO;
 import dataaccess.DBUserDAO;
 import dataaccess.ServerDaos;
+import model.GameData;
 import model.requests.*;
 import model.responses.*;
 import service.AuthService;
@@ -101,7 +102,16 @@ public class HttpServer {
             }
         });
 
-
+        put("/game/state", (request, response) -> {
+            try {
+                GameData gameData = gson.fromJson(request.body(), GameData.class);
+                UpdateGameRequest updateGameRequest = (new UpdateGameRequest(request.headers("authorization"), gameData));
+                return toJson(response, gameService.updateGame(updateGameRequest));
+            } catch (ServiceException e) {
+                return toError(response, e.error);
+            }
+        });
+        
         get("/game", (request, response) -> {
             try {
                 ListGamesRequest listGamesRequest = new ListGamesRequest(request.headers("authorization"));

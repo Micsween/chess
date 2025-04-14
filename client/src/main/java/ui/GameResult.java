@@ -1,4 +1,4 @@
 package ui;
 
-public record GameResult() {
+public record GameResult(boolean left) {
 }

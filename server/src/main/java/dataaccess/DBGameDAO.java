@@ -73,13 +73,13 @@ public class DBGameDAO implements GameDAO {
         }
         switch (playerColor) {
             case "WHITE":
-                if (gameToJoin.whiteUsername() != null) {
+                if (gameToJoin.whiteUsername() != null && !gameToJoin.whiteUsername().equals(username)) {
                     throw new AlreadyTakenException();
                 }
                 updateGame(new GameData(gameID, username, gameToJoin.blackUsername(), gameToJoin.gameName(), gameToJoin.game()));
                 break;
             case "BLACK":
-                if (gameToJoin.blackUsername() != null) {
+                if (gameToJoin.blackUsername() != null && !gameToJoin.blackUsername().equals(username)) {
                     throw new AlreadyTakenException();
                 }
                 updateGame(new GameData(gameID, gameToJoin.whiteUsername(), username, gameToJoin.gameName(), gameToJoin.game()));

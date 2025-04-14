@@ -79,6 +79,7 @@ public class PostLogin {
         int i = 1;
         for (GameData game : listGamesResponse.games()) {
             System.out.print(i + ". ");
+            System.out.print("Game ID:" + game.gameID() + ". ");
             System.out.print("Game name: " + game.gameName() + " | ");
             System.out.println("Players: " + ((game.blackUsername() == null) ? " " : "Black: " + game.blackUsername()) + " "
                     + ((game.whiteUsername() == null) ? " " : "White: " + game.whiteUsername()));
