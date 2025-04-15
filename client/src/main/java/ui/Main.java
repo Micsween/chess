@@ -29,9 +29,9 @@ public class Main {
         PreLogin preLogin = new PreLogin(serverFacade);
         PostLogin postLogin = new PostLogin(serverFacade);
         Game game = new Game(serverFacade);
-        //game.playGame(23, "a", "1af22abd-dd04-409c-9333-168e7478b2f6", ChessGame.TeamColor.BLACK);
-        //game.playGame(23, "a", "f05e7fbc-6a47-49dc-9992-54fff8c36fc8", ChessGame.TeamColor.WHITE);
-
+        //game.playGame(27, "a", "1af22abd-dd04-409c-9333-168e7478b2f6", ChessGame.TeamColor.WHITE);
+        //game.playGame(27, "b", "f05e7fbc-6a47-49dc-9992-54fff8c36fc8", ChessGame.TeamColor.BLACK);
+        game.spectateGame(27, "j", "26e539b0-bf22-40cc-bad0-3a9628e76eb6", null);
         String line = "";
         while (!line.equals("help")) {
             line = printIntro();
@@ -58,7 +58,7 @@ public class Main {
             } else {
                 System.out.println("game started");
                 if (color == null) {
-                    game.spectateGame();
+                    game.spectateGame(gameId, username, authToken, null);
                 } else {
                     game.playGame(gameId, username, authToken, color);
                 }
