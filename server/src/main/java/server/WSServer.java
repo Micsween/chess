@@ -6,16 +6,18 @@ import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.*;
 import model.AuthData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import spark.Spark;
+import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationsMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -77,41 +79,54 @@ public class WSServer {
             gameData.game().makeMove(move);
             gameDAO.updateGame(gameData);
             broadcastMessage(gameData.gameID(), new LoadGameMessage(gameData.game()));
-            broadcastMessageExcept(gameData.gameID(), endpoint, new NotificationsMessage(move.prettyPrint(username)));
+            broadcastMessageExcept(gameData.gameID(), endpoint, new NotificationMessage(move.prettyPrint(username)));
             if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
-                broadcastMessage(gameData.gameID(), new NotificationsMessage(gameData.blackUsername() + " is in check."));
+                broadcastMessage(gameData.gameID(), new NotificationMessage(gameData.blackUsername() + " is in check."));
             }
             if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                broadcastMessage(gameData.gameID(), new NotificationsMessage(gameData.blackUsername() + " is in checkmate"));
+                broadcastMessage(gameData.gameID(), new NotificationMessage(gameData.blackUsername() + " is in checkmate"));
             }
             if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
-                broadcastMessage(gameData.gameID(), new NotificationsMessage(gameData.whiteUsername() + " is in check."));
+                broadcastMessage(gameData.gameID(), new NotificationMessage(gameData.whiteUsername() + " is in check."));
             }
             if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
-                broadcastMessage(gameData.gameID(), new NotificationsMessage(gameData.whiteUsername() + " is in checkmate"));
+                broadcastMessage(gameData.gameID(), new NotificationMessage(gameData.whiteUsername() + " is in checkmate"));
             }
             if (gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
-                broadcastMessage(gameData.gameID(), new NotificationsMessage("Currently in a stalemate."));
+                broadcastMessage(gameData.gameID(), new NotificationMessage("Currently in a stalemate."));
             }
 
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | IOException e) {
             throw new RuntimeException(e);
         } catch (InvalidMoveException e) {
             System.out.println("Invalid move exception caught!");
-            sendMessage(endpoint, new NotificationsMessage("This move is invalid"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            sendMessage(endpoint, new NotificationMessage("This move is invalid"));
         }
     }
 
+    private void leave(String username, Session session, String message) throws DataAccessException {
+        LeaveGameCommand leaveCommand = gson.fromJson(message, LeaveGameCommand.class);
+        var gameData = gameDAO.getGame(leaveCommand.getGameID());
+        gameDAO.playerLeave(gameData.gameID(), leaveCommand.getTeamColor());
+        if (leaveCommand.getTeamColor() == null) {
+            broadcastMessageExcept(gameData.gameID(), session.getRemote(), new NotificationMessage("Spectator: " + username + " has left."));
+        } else {
+            broadcastMessageExcept(gameData.gameID(), session.getRemote(), new NotificationMessage("Player: " + username + " of team: " + leaveCommand.getTeamColor() + " has left."));
+        }
+    }
+
+    private void resign(String username, Session session, String message) throws DataAccessException {
+
+    }
+
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws Exception {
+    public void onMessage(Session session, String message) {
         System.out.printf("Received: %s\n", message);
         try {
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
             AuthData auth = authDAO.getAuth(command.getAuthToken());
             String username = auth.username();
-            if (username.equals("")) {
+            if (username.isEmpty()) {
                 throw new UnauthorizedException();
             }
             saveSession(command.getGameID(), session);
@@ -120,22 +135,25 @@ public class WSServer {
                 case CONNECT -> {
                     System.out.println("connected.");
                     if (username.equals(gameDAO.getGame(command.getGameID()).whiteUsername())) {
-                        broadcastMessage(command.getGameID(), new NotificationsMessage("WHITE: " + username + " connected to the game."));
-                    }
-                    if (username.equals(gameDAO.getGame(command.getGameID()).blackUsername())) {
-                        broadcastMessage(command.getGameID(), new NotificationsMessage("BLACK:" + username + " connected to the game."));
+                        broadcastMessageExcept(command.getGameID(), session.getRemote(), new NotificationMessage("WHITE: " + username + " connected to the game."));
+                    } else if (username.equals(gameDAO.getGame(command.getGameID()).blackUsername())) {
+                        broadcastMessageExcept(command.getGameID(), session.getRemote(), new NotificationMessage("BLACK:" + username + " connected to the game."));
                     } else {
-                        broadcastMessage(command.getGameID(), new NotificationsMessage(username + " is now observing the game."));
+                        broadcastMessageExcept(command.getGameID(), session.getRemote(), new NotificationMessage(username + " is now observing the game."));
                     }
                 }
                 case MAKE_MOVE -> {
                     MakeMoveCommand moveCommand = gson.fromJson(message, MakeMoveCommand.class);
-                    System.out.println("made a move.");
                     makeMove(username, command.getGameID(), session.getRemote(), moveCommand.getMove());
                 }
-
-                case LEAVE -> System.out.println("leave.");//leaveGame(session, username, (LeaveGameCommand) command);
-                case RESIGN -> System.out.println("resign.");//resign(session, username, (ResignCommand) command);
+                case LEAVE -> leave(username, session, message);
+                case RESIGN -> {
+                    GameData gameData = gameDAO.getGame(command.getGameID());
+                    gameData.game().setTeamTurn(null);
+                    gameDAO.updateGame(gameData);
+                    broadcastMessage(gameData.gameID(), new NotificationMessage(username + " has resigned!"));
+                    System.out.println("resign.");
+                }
             }
         } catch (UnauthorizedException ex) {
             ex.printStackTrace();

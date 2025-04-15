@@ -87,6 +87,42 @@ public class DBGameDAO implements GameDAO {
         }
     }
 
+    public void playerLeave(int gameId, ChessGame.TeamColor color) throws DataAccessException {
+        GameData game = getGame(gameId);
+        if (game == null) {
+            throw new DataAccessException("Error: bad request");
+        }
+        if (color == null) {
+            return;
+        }
+        switch (color) {
+            case WHITE -> {
+                try (var conn = DatabaseManager.getConnection();
+                     PreparedStatement pstmt = conn.prepareStatement("UPDATE gamedata " +
+                             "SET whiteUsername = NULL " +
+                             "WHERE gameID = ? ")) {
+
+                    pstmt.setInt(1, gameId);
+                    pstmt.executeUpdate();
+                } catch (Exception e) {
+                    throw new DataAccessException("Something went wrong with your request to update a game.");
+                }
+            }
+            case BLACK -> {
+                try (var conn = DatabaseManager.getConnection();
+                     PreparedStatement pstmt = conn.prepareStatement("UPDATE gamedata " +
+                             "SET blackUsername = NULL " +
+                             "WHERE gameID = ?")) {
+                    pstmt.setInt(1, gameId);
+                    pstmt.executeUpdate();
+                } catch (Exception e) {
+                    throw new DataAccessException("Something went wrong with your request to update a game.");
+                }
+            }
+        }
+
+    }
+
     public void updateGame(GameData gameData) throws DataAccessException {
         GameData game = getGame(gameData.gameID());
         if (game == null) {

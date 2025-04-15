@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.Collection;
@@ -26,6 +27,9 @@ public interface GameDAO {
     Collection<GameData> listGames();
 
     void updateGame(GameData gameData) throws DataAccessException;
+
+    void playerLeave(int gameId, ChessGame.TeamColor color) throws DataAccessException;
+
 
     /**
      * Deletes ALL current GameData

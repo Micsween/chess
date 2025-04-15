@@ -1,11 +1,12 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class MemoryGameDAO {
+public class MemoryGameDAO implements GameDAO {
     public Collection<GameData> allGameData = new ArrayList<>();
 
     public GameData createGame(GameData gameData) throws DataAccessException {
@@ -52,6 +53,18 @@ public class MemoryGameDAO {
 
     public Collection<GameData> listGames() {
         return allGameData;
+    }
+
+    @Override
+    public void updateGame(GameData gameData) {
+        System.out.println("Not implemented");
+    }
+
+    @Override
+    public void playerLeave(int gameId, ChessGame.TeamColor color) throws DataAccessException {
+        throw new DataAccessException("Not implemented");
+        // System.out.println("Not implemented");
+
     }
 
     public void clearAllGames() {

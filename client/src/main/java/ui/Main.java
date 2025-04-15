@@ -30,7 +30,7 @@ public class Main {
         PostLogin postLogin = new PostLogin(serverFacade);
         Game game = new Game(serverFacade);
         //game.playGame(27, "a", "1af22abd-dd04-409c-9333-168e7478b2f6", ChessGame.TeamColor.WHITE);
-        //game.playGame(27, "b", "f05e7fbc-6a47-49dc-9992-54fff8c36fc8", ChessGame.TeamColor.BLACK);
+        //game.playGame(27, "b", "03b51e0e-3d23-4e23-a9ce-c95e4bab6e93", ChessGame.TeamColor.BLACK);
         game.spectateGame(27, "j", "26e539b0-bf22-40cc-bad0-3a9628e76eb6", null);
         String line = "";
         while (!line.equals("help")) {

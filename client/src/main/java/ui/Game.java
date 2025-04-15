@@ -7,14 +7,13 @@ import client.Websocket;
 import client.WebsocketObserver;
 import model.GameData;
 import model.responses.ListGamesResponse;
+import websocket.commands.LeaveGameCommand;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.ResignGameCommand;
 import websocket.commands.UserGameCommand;
 
 import java.util.*;
 
-
-//game renders and plays a game.
-//main handles an exception if there is no game.
 public class Game implements WebsocketObserver {
     String authToken;
     int gameId;
@@ -27,17 +26,8 @@ public class Game implements WebsocketObserver {
 
     Game(ServerFacade serverFacade) {
         server = serverFacade;
-
-
-        try {
-            Websocket websocket = new Websocket();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
-    //make a function that, when provided a piece will get all the moves for a specific piece.
-//meaning i can access th start position, making the make move command easier for users.
     Map<String, Integer> CHAR_TO_COL_MAP = new HashMap<>() {{
         put("a", 1);
         put("b", 2);
@@ -84,10 +74,7 @@ public class Game implements WebsocketObserver {
         String input = scanner.nextLine();
         return input.split(" ");
     }
-
-    void makeMove() {
-        gameWon = true;
-    }
+    
 
     Collection<ChessPosition> getEndPositions(Collection<ChessMove> moves) {
         var positions = new ArrayList<ChessPosition>();
@@ -129,6 +116,14 @@ public class Game implements WebsocketObserver {
         boardUI(getEndPositions(moves));
     }
 
+    public void leaveGame() {
+        try {
+            websocket.sendMessage(new LeaveGameCommand(authToken, gameId, color));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void spectateGame(int gameId, String username, String authToken, ChessGame.TeamColor color) {
         this.gameId = gameId;
         this.authToken = authToken;
@@ -151,6 +146,7 @@ public class Game implements WebsocketObserver {
             var command = inputs[0];
             switch (command) {
                 case "leave":
+                    leaveGame();
                     return;
                 case "redraw":
                     boardUI();
@@ -164,7 +160,6 @@ public class Game implements WebsocketObserver {
 
         }
 
-        //open a websocket connection that reprints the board anytime there is a change
 
     }
 
@@ -197,17 +192,12 @@ public class Game implements WebsocketObserver {
         }
         //server.updateGame(authToken, new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game));
         try {
-            websocket.sendMessage(new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId, move));
+            websocket.sendMessage(new MakeMoveCommand(authToken, gameId, move));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
-//        this.commandType = commandType;
-//        this.authToken = authToken;
-//        this.gameID = gameID;
-//    }
     public void playGame(int gameId, String username, String authToken, ChessGame.TeamColor color) {
         this.gameId = gameId;
         this.authToken = authToken;
@@ -244,32 +234,25 @@ public class Game implements WebsocketObserver {
                     highlightMoves(params);
                     break;
                 case "move":
-                    //websocket message
-
                     makeMove(params);
-
                     break;
                 case "redraw":
                     boardUI();
                     break;
                 case "leave":
-                    //websocket message
-                    //remove the player from the game if they're one of the players.
-                    //close the websocket connection
-                    //move to post login
                     System.out.println("Leaving game...");
+                    leaveGame();
                     return;
                 case "resign":
                     System.out.println("Are you sure you'd like to resign? y/n");
                     var confirmation = getInput();
-                    if (confirmation[0].equals("y")) {
-                        //declare the winner to everyone connected through websocket
+                    if (confirmation.length > 0 && confirmation[0].equals("y")) {
                         System.out.println("Declaring defeat");
-                        gameWon = true;
-                        winner = (color == ChessGame.TeamColor.BLACK ? "White" : "Black");
-                        System.out.println("Team" + color + " has resigned. Team " + winner + " has won!");
-                        //close the websocket connection
-                        return;
+                        try {
+                            websocket.sendMessage(new ResignGameCommand(authToken, gameId));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
 
@@ -282,9 +265,6 @@ public class Game implements WebsocketObserver {
 
     }
 
-    void printBoard(String[] lines, int start, int finish, int modifier) {
-        printBoard(lines, start, finish, modifier, new ArrayList<>());
-    }
 
     boolean highlightPosition(Collection<ChessPosition> highlights, char c, ChessPosition currentPosition) {
         if (highlights != null && highlights.contains(currentPosition)) {
