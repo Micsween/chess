@@ -212,7 +212,7 @@ public class Game implements WebsocketObserver {
         //create a websocket connection
 
         System.out.println("Type 'help' to see the list of available commands.");
-        boardUI();
+        //boardUI();
 
         while (!gameWon) {
             ChessGame game = getGameData(gameId).game();

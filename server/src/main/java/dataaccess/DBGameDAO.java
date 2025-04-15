@@ -175,6 +175,17 @@ public class DBGameDAO implements GameDAO {
         return games;
     }
 
+
+    public void deleteGame(int gameID) {
+        try (var conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("DELETE FROm gamedata WHERE gameID = ?")) {
+            pstmt.setInt(1, gameID);
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
     @Override
     public void clearAllGames() {
         try (var conn = DatabaseManager.getConnection();

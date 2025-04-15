@@ -35,4 +35,6 @@ public interface GameDAO {
      * Deletes ALL current GameData
      */
     void clearAllGames();
+
+    void deleteGame(int gameID);
 }

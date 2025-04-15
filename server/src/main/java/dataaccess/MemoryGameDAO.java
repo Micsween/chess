@@ -18,6 +18,10 @@ public class MemoryGameDAO implements GameDAO {
         return gameData;
     }
 
+    public void deleteGame(int gameID) {
+        System.out.println(gameID);
+    }
+
     public GameData getGame(Integer gameID) {
         for (GameData gameData : allGameData) {
             if (gameData.gameID().equals(gameID)) {

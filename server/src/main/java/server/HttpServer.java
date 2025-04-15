@@ -72,6 +72,7 @@ public class HttpServer {
                 userService.clear();
                 authService.clear();
                 ClearResponse clearResponse = gameService.clear();
+                WSServer.clear();
                 return toJson(response, clearResponse);
             } catch (Exception e) {
                 return toError(response, new ErrorResponse(500, "Error: " + e.getMessage()));
@@ -111,7 +112,7 @@ public class HttpServer {
                 return toError(response, e.error);
             }
         });
-        
+
         get("/game", (request, response) -> {
             try {
                 ListGamesRequest listGamesRequest = new ListGamesRequest(request.headers("authorization"));

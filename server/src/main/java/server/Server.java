@@ -10,7 +10,7 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 @WebSocket
 public class Server {
 
-    
+
     public int run(int desiredPort) {
         try {
             createDatabase();

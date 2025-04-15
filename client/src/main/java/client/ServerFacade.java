@@ -67,6 +67,7 @@ public class ServerFacade {
 
     public void clear() {
         this.send("/db", "DELETE", null, ClearResponse.class, null);
+       
     }
 
     private <T> T send(String path, String method, Object body, Class<T> responseType, String authKey) throws ClientException {
