@@ -109,9 +109,11 @@ public class WSServer {
         var gameData = gameDAO.getGame(leaveCommand.getGameID());
         gameDAO.playerLeave(gameData.gameID(), leaveCommand.getTeamColor());
         if (leaveCommand.getTeamColor() == null) {
-            broadcastMessageExcept(gameData.gameID(), session.getRemote(), new NotificationMessage("Spectator: " + username + " has left."));
+            broadcastMessageExcept(gameData.gameID(), session.getRemote(),
+                    new NotificationMessage("Spectator: " + username + " has left."));
         } else {
-            broadcastMessageExcept(gameData.gameID(), session.getRemote(), new NotificationMessage("Player: " + username + " of team: " + leaveCommand.getTeamColor() + " has left."));
+            broadcastMessageExcept(gameData.gameID(), session.getRemote(),
+                    new NotificationMessage("Player: " + username + " of team: " + leaveCommand.getTeamColor() + " has left."));
         }
     }
 
@@ -134,12 +136,16 @@ public class WSServer {
             switch (command.getCommandType()) {
                 case CONNECT -> {
                     System.out.println("connected.");
-                    if (username.equals(gameDAO.getGame(command.getGameID()).whiteUsername())) {
-                        broadcastMessageExcept(command.getGameID(), session.getRemote(), new NotificationMessage("WHITE: " + username + " connected to the game."));
-                    } else if (username.equals(gameDAO.getGame(command.getGameID()).blackUsername())) {
-                        broadcastMessageExcept(command.getGameID(), session.getRemote(), new NotificationMessage("BLACK:" + username + " connected to the game."));
+                    var game = gameDAO.getGame(command.getGameID());
+                    if (username.equals(game.whiteUsername())) {
+                        broadcastMessageExcept(command.getGameID(), session.getRemote(),
+                                new NotificationMessage("WHITE: " + username + " connected to the game."));
+                    } else if (username.equals(game.blackUsername())) {
+                        broadcastMessageExcept(command.getGameID(), session.getRemote(),
+                                new NotificationMessage("BLACK:" + username + " connected to the game."));
                     } else {
-                        broadcastMessageExcept(command.getGameID(), session.getRemote(), new NotificationMessage(username + " is now observing the game."));
+                        broadcastMessageExcept(command.getGameID(), session.getRemote(),
+                                new NotificationMessage(username + " is now observing the game."));
                     }
                 }
                 case MAKE_MOVE -> {

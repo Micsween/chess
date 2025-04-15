@@ -28,7 +28,7 @@ public class Game implements WebsocketObserver {
         server = serverFacade;
     }
 
-    Map<String, Integer> CHAR_TO_COL_MAP = new HashMap<>() {{
+    Map<String, Integer> charToColMap = new HashMap<>() {{
         put("a", 1);
         put("b", 2);
         put("c", 3);
@@ -74,7 +74,7 @@ public class Game implements WebsocketObserver {
         String input = scanner.nextLine();
         return input.split(" ");
     }
-    
+
 
     Collection<ChessPosition> getEndPositions(Collection<ChessMove> moves) {
         var positions = new ArrayList<ChessPosition>();
@@ -87,7 +87,7 @@ public class Game implements WebsocketObserver {
     Collection<ChessMove> getMoves(String[] params) {
         var gameData = getGameData(gameId);
         int row = Integer.parseInt(params[0]);
-        int col = CHAR_TO_COL_MAP.get(params[1]);
+        int col = charToColMap.get(params[1]);
 
         return gameData.game().validMoves(new ChessPosition(row, col));
 
@@ -165,9 +165,9 @@ public class Game implements WebsocketObserver {
 
     ChessMove parseMove(String[] params) {
         int startRow = Integer.parseInt(params[0]);
-        int startCol = CHAR_TO_COL_MAP.get(params[1]);
+        int startCol = charToColMap.get(params[1]);
         int endRow = Integer.parseInt(params[2]);
-        int endCol = CHAR_TO_COL_MAP.get(params[3]);
+        int endCol = charToColMap.get(params[3]);
         return new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
     }
 
@@ -190,7 +190,6 @@ public class Game implements WebsocketObserver {
             System.out.println("One of your inputs is invalid. Please try again");
             return;
         }
-        //server.updateGame(authToken, new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game));
         try {
             websocket.sendMessage(new MakeMoveCommand(authToken, gameId, move));
         } catch (Exception e) {
