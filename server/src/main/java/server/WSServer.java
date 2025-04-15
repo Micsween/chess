@@ -125,7 +125,7 @@ public class WSServer {
         } else if (username.equals(gameData.blackUsername())) {
             color = ChessGame.TeamColor.BLACK;
         }
-        
+
         gameDAO.playerLeave(gameData.gameID(), color);
         if (leaveCommand.getTeamColor() == null) {
             broadcastMessageExcept(gameData.gameID(), session.getRemote(),
@@ -211,9 +211,6 @@ public class WSServer {
         sessions.computeIfAbsent(gameID, k -> new ArrayList<>()).add(session);
     }
 
-    void endGame(int gameId) {
-        sessions.remove(gameId);
-    }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
