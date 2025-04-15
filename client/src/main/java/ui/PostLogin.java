@@ -97,7 +97,7 @@ public class PostLogin {
     }
 
     boolean join(String[] params) {
-        if (params.length < 1) {
+        if (params.length < 2) {
             System.out.println("\n Please provide all fields. \n");
             return false;
         }
