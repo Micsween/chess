@@ -15,6 +15,11 @@ public class ChessPosition {
                 '}';
     }
 
+    public String prettyPrint() {
+        return row + "," + col;
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ChessPosition that)) {

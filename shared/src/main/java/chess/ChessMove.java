@@ -22,6 +22,10 @@ public class ChessMove {
                 '}';
     }
 
+    public String prettyPrint(String username) {
+        return username + " made move: " + startPosition.prettyPrint() + " to " + endPosition.prettyPrint();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof ChessMove that)) {
