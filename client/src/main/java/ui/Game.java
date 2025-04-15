@@ -4,15 +4,18 @@ import chess.*;
 import client.ClientException;
 import client.ServerFacade;
 import client.Websocket;
+import client.WebsocketObserver;
 import model.GameData;
 import model.responses.ListGamesResponse;
+import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 
 import java.util.*;
 
 
 //game renders and plays a game.
 //main handles an exception if there is no game.
-public class Game {
+public class Game implements WebsocketObserver {
     String authToken;
     int gameId;
     String username;
@@ -20,6 +23,7 @@ public class Game {
     boolean gameWon = false;
     ChessGame.TeamColor color;
     String winner;
+    Websocket websocket;
 
     Game(ServerFacade serverFacade) {
         server = serverFacade;
@@ -54,6 +58,12 @@ public class Game {
             "resign", new String[]{},
             "highlight", new String[]{"row", "col"}
     );
+
+    public void loadGame(String message) {
+        //System.out.println("Reloading game because a move was made..");
+        //System.out.println(message);
+        boardUI();
+    }
 
     public String printCommandUI() {
         StringBuilder consoleUIBuilder = new StringBuilder();
@@ -119,10 +129,21 @@ public class Game {
         boardUI(getEndPositions(moves));
     }
 
-    public void spectateGame() {
+    public void spectateGame(int gameId, String username, String authToken, ChessGame.TeamColor color) {
+        this.gameId = gameId;
+        this.authToken = authToken;
+        this.username = username;
+        this.color = color;
         System.out.println("You are now spectating: " +
                 getGameData(gameId).whiteUsername() +
-                "and" + getGameData(gameId).blackUsername());
+                " and " + getGameData(gameId).blackUsername());
+        try {
+            websocket = new Websocket();
+            websocket.registerObserver(this);
+            websocket.sendMessage(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         boardUI();
         while (true) {
             System.out.println("Type 'help' to see the list of available commands.");
@@ -149,49 +170,69 @@ public class Game {
 
     ChessMove parseMove(String[] params) {
         int startRow = Integer.parseInt(params[0]);
-        int startCol = Integer.parseInt(params[1]);
+        int startCol = CHAR_TO_COL_MAP.get(params[1]);
         int endRow = Integer.parseInt(params[2]);
-        int endCol = Integer.parseInt(params[3]);
+        int endCol = CHAR_TO_COL_MAP.get(params[3]);
         return new ChessMove(new ChessPosition(startRow, startCol), new ChessPosition(endRow, endCol), null);
     }
 
     void makeMove(String[] params) {
+
         if (params.length < 4) {
             System.out.println("Please provide all fields");
             return;
         }
         GameData gameData = getGameData(gameId);
         ChessGame game = gameData.game();
+        ChessMove move;
         if (!game.isTurn(color)) {
             System.out.println("It is not your turn");
             return;
         }
         try {
-            ChessMove move = parseMove(params);
-            game.makeMove(move);
-        } catch (InvalidMoveException e) {
-            System.out.println("Invalid move.");
-            return;
+            move = parseMove(params);
         } catch (Exception e) {
             System.out.println("One of your inputs is invalid. Please try again");
             return;
         }
-        server.updateGame(authToken, new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game));
-        boardUI();
+        //server.updateGame(authToken, new GameData(gameData.gameID(), gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), game));
+        try {
+            websocket.sendMessage(new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameId, move));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-
+    //    public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
+//        this.commandType = commandType;
+//        this.authToken = authToken;
+//        this.gameID = gameID;
+//    }
     public void playGame(int gameId, String username, String authToken, ChessGame.TeamColor color) {
         this.gameId = gameId;
         this.authToken = authToken;
         this.username = username;
         this.color = color;
+        try {
+            websocket = new Websocket();
+            websocket.registerObserver(this);
+            websocket.sendMessage(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //create a websocket connection
 
         System.out.println("Type 'help' to see the list of available commands.");
         boardUI();
 
         while (!gameWon) {
-            //print the commands
+            ChessGame game = getGameData(gameId).game();
+            if (game.isInCheckmate(color)) {
+                gameWon = true;
+                winner = (color == ChessGame.TeamColor.BLACK ? "White" : "Black");
+                System.out.println("Team " + winner + " has won!");
+            }
+
             var inputs = getInput();
             var command = inputs[0];
             String[] params = Arrays.copyOfRange(inputs, 1, inputs.length);
@@ -204,10 +245,9 @@ public class Game {
                     break;
                 case "move":
                     //websocket message
+
                     makeMove(params);
-                    //make the move
-                    //send out a message that tells every one to redraw the oard
-                    //redraw the board
+
                     break;
                 case "redraw":
                     boardUI();
@@ -229,21 +269,12 @@ public class Game {
                         winner = (color == ChessGame.TeamColor.BLACK ? "White" : "Black");
                         System.out.println("Team" + color + " has resigned. Team " + winner + " has won!");
                         //close the websocket connection
-
                         return;
                     }
                     break;
 
 
             }
-
-            //get an input
-            //if its your turn you can do certain inputs
-            //while its not your turn you cant do others
-
-            //switch handler for inputs
-            //if player joins: ws.send(gameCommand, client (user), et.c); which goes to the server and does websocket stuff
-            //
             if (gameWon) {
                 break;
             }
@@ -301,8 +332,10 @@ public class Game {
     }
 
     void boardUI(Collection<ChessPosition> positions) {
-        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
         GameData gameData = getGameData(gameId);
+
+        System.out.println("Current turn: " + gameData.game().getTeamTurn());
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
 
         ChessBoard chessBoard = gameData.game().getBoard();
         String board = chessBoard.toString();
